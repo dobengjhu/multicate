@@ -9,7 +9,7 @@ estimate_cate(
   estimation_method = c("slearner", "xlearner", "causalforest"),
   aggregation_method = c("studyindicator", "ensembleforest"),
   site_col,
-  treat_col,
+  treatment_col,
   outcome_col,
   covariate_col = NULL,
   drop_col = NULL,

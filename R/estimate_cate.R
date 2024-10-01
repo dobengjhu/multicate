@@ -18,13 +18,13 @@ estimate_cate <- function(trial_tbl,
                           estimation_method = c("slearner", "xlearner", "causalforest"),
                           aggregation_method = c("studyindicator", "ensembleforest"),
                           site_col,
-                          treat_col,
+                          treatment_col,
                           outcome_col,
                           covariate_col = NULL,
                           drop_col = NULL,
                           ...
                           ) {
-
+  browser()
   # assertions on methods
   estimation_method <- match.arg(estimation_method)
   aggregation_method <- match.arg(aggregation_method)
@@ -32,46 +32,29 @@ estimate_cate <- function(trial_tbl,
   # assertions on trial_tbl
   # TODO: Assert site, treatment, and outcome cols are not in covariate_col or drop_col
 
-  # symbols for columns
-  site <- rlang::sym(site_col)
-  treat <- rlang::sym(treat_col)
-  outcome <- rlang::sym(outcome_col)
-  dots <- list(...)
-
   if (is.null(covariate_col)) {
-    exclude_col <- c(site_col, treat_col, outcome_col, drop_col)
+    exclude_col <- c(site_col, treatment_col, outcome_col, drop_col)
     covariate_col <- colnames(trial_tbl)[-which(colnames(trial_tbl) %in% exclude_col)]
   }
-  covariates <- rlang::syms(covariates_col)
 
-  # prep feature tbl
-  treat_vec <- trial_tbl[[treat_col]]
-  outcome_vec <- trial_tbl[[outcome_col]]
-  feature_tbl <- trial_tbl %>%
-    dplyr::select(!!site, dplyr::all_of(covariate_col)) %>%
-    {
-      if (aggregation_method == "studyindicator") {
-        fastDummies::dummy_cols(., select_columns = site_col, remove_selected_columns = TRUE)
-      } else {
-        .
-      }
-    }
+  named_args <- list(trial_tbl = trial_tbl,
+                     site_col = site_col,
+                     treatment_col = treatment_col,
+                     outcome_col = outcome_col,
+                     covariate_col = covariate_col,
+                     estimation_method = estimation_method)
+  class(named_args) <- c(estimation_method, aggregation_method, "mcate", "list")
 
-  tau_hat <- estimate_tau(
-    feature_tbl,
-    treat_vec,
-    outcome_vec,
-    estimation_method,
-    aggregation_method
-  )
+  generate_tau(named_args,
+               ...)
 
-  # causal forest
-  if (estimation_method == "causalforest") {
-    if (aggregation_method == "studyindicator") {
-
-    } else if (aggregation_method == "ensemble") {
-
-    }
+  if (aggregation_method == "studyindicator") {
+    generate_tau_studyindicator(named_args,
+                                ...)
+  } else if (aggregation_method == "ensembleforest") {
+    generate_tau_ensembleforest(named_args,
+                                ...)
   }
-
 }
+
+
