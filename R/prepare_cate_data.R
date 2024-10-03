@@ -14,7 +14,7 @@ prepare_cate_data <- function(args,
   outcome_vec <- args$trial_tbl[[args[["outcome_col"]]]]
   site_vec <- args$trial_tbl[[args[["site_col"]]]]
   feature_tbl <- args$trial_tbl %>%
-    dplyr::select(!!rlang::sym(args[["site_col"]]), dplyr::all_of(args[["covariate_col"]])) %>%
+    dplyr::select(!!rlang::sym(args$site_col), dplyr::all_of(args$covariate_col)) %>%
     {
       if (aggregation_method == "studyindicator") {
         fastDummies::dummy_cols(.,
@@ -22,7 +22,7 @@ prepare_cate_data <- function(args,
                                 remove_selected_columns = TRUE)
       } else if (aggregation_method == "ensembleforest") {
         dplyr::select(.,
-                      -!!rlang::sym(args[["site_col"]]))
+                      -!!rlang::sym(args$site_col))
       }
     }
 
@@ -30,5 +30,5 @@ prepare_cate_data <- function(args,
        treatment_vec = treatment_vec,
        outcome_vec = outcome_vec,
        site_vec = site_vec,
-       site_col = site_col)
+       site_col = args$site_col)
 }

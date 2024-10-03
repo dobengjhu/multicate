@@ -38,7 +38,7 @@ generate_tau.studyindicator_args <- function(named_args,
                           Y = tau_args$outcome_vec),
                      relevant_args))
     tau$predictions
-  } else if (named_arg$estimation_method == "xlearner") {
+  } else if (named_args$estimation_method == "xlearner") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(causalToolbox::X_RF))]
     xrf_fit <- do.call(causalToolbox::X_RF,
