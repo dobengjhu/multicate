@@ -36,7 +36,7 @@ generate_tau.studyindicator_args <- function(named_args,
                    c(list(X = tau_args$feature_tbl,
                           W = tau_args$treatment_vec,
                           Y = tau_args$outcome_vec),
-                     extra_args))
+                     relevant_args))
     tau$predictions
   } else if (named_arg$estimation_method == "xlearner") {
     extra_args <- list(...)
@@ -45,7 +45,7 @@ generate_tau.studyindicator_args <- function(named_args,
                        c(list(feat = tau_args$feature_tbl,
                               tr = tau_args$treatment_vec,
                               yobs = tau_args$outcome_vec),
-                         extra_args))
+                         relevant_args))
     causalToolbox::EstimateCate(xrf_fit,
                                 tau_args$feature_tbl)
   } else if (named_args$estimation_method == "slearner") {
@@ -55,7 +55,7 @@ generate_tau.studyindicator_args <- function(named_args,
                        c(list(feat = tau_args$feature_tbl,
                               tr = tau_args$treatment_vec,
                               yobs = tau_args$outcome_vec),
-                         extra_args))
+                         relevant_args))
     causalToolbox::EstimateCate(srf_fit,
                                 tau_args$feature_tbl)
   }
