@@ -24,7 +24,6 @@ estimate_cate <- function(trial_tbl,
                           drop_col = NULL,
                           ...
                           ) {
-  browser()
   # assertions on methods
   estimation_method <- match.arg(estimation_method)
   aggregation_method <- match.arg(aggregation_method)
@@ -43,18 +42,12 @@ estimate_cate <- function(trial_tbl,
                      outcome_col = outcome_col,
                      covariate_col = covariate_col,
                      estimation_method = estimation_method)
-  class(named_args) <- c(estimation_method, aggregation_method, "mcate", "list")
+  class(named_args) <- c(glue::glue("{estimation_method}_args"),
+                         glue::glue("{aggregation_method}_args"))
 
-  generate_tau(named_args,
-               ...)
-
-  if (aggregation_method == "studyindicator") {
-    generate_tau_studyindicator(named_args,
-                                ...)
-  } else if (aggregation_method == "ensembleforest") {
-    generate_tau_ensembleforest(named_args,
-                                ...)
-  }
+  trial_tbl %>%
+    dplyr::mutate(tau_hat = generate_tau(named_args,
+                                         ...))
 }
 
 

@@ -1,28 +1,28 @@
 #' Title
 #'
-#' @param arg
+#' @param args
 #' @param aggregation_method
 #'
 #' @return
 #' @export
 #'
 #' @examples
-prepare_cate_data <- function(arg,
+prepare_cate_data <- function(args,
                               aggregation_method) {
   # prep feature tbl
-  treatment_vec <- arg[["trial_tbl"]][[arg[["treatment_col"]]]]
-  outcome_vec <- arg[["trial_tbl"]][[arg[["outcome_col"]]]]
-  site_vec <- arg[["trial_tbl"]][[arg[["site_col"]]]]
-  feature_tbl <- arg[["trial_tbl"]] %>%
-    dplyr::select(!!rlang::sym(arg[["site_col"]]), dplyr::all_of(arg[["covariate_col"]])) %>%
+  treatment_vec <- args$trial_tbl[[args[["treatment_col"]]]]
+  outcome_vec <- args$trial_tbl[[args[["outcome_col"]]]]
+  site_vec <- args$trial_tbl[[args[["site_col"]]]]
+  feature_tbl <- args$trial_tbl %>%
+    dplyr::select(!!rlang::sym(args[["site_col"]]), dplyr::all_of(args[["covariate_col"]])) %>%
     {
       if (aggregation_method == "studyindicator") {
         fastDummies::dummy_cols(.,
-                                select_columns = arg[["site_col"]],
+                                select_columns = args[["site_col"]],
                                 remove_selected_columns = TRUE)
       } else if (aggregation_method == "ensembleforest") {
         dplyr::select(.,
-                      -!!rlang::sym(arg[["site_col"]]))
+                      -!!rlang::sym(args[["site_col"]]))
       }
     }
 

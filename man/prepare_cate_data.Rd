@@ -4,7 +4,7 @@
 \alias{prepare_cate_data}
 \title{Title}
 \usage{
-prepare_cate_data(arg, aggregation_method)
+prepare_cate_data(args, aggregation_method)
 }
 \arguments{
 \item{aggregation_method}{}
