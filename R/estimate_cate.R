@@ -45,9 +45,12 @@ estimate_cate <- function(trial_tbl,
   class(named_args) <- c(glue::glue("{estimation_method}_args"),
                          glue::glue("{aggregation_method}_args"))
 
-  trial_tbl %>%
-    dplyr::mutate(tau_hat = generate_tau(named_args,
-                                         ...))
+  tau_list <- generate_tau(named_args,
+                           ...)
+  return(list(tau_tbl = trial_tbl %>%
+                dplyr::mutate(tau_hat = tau_list$tau_hat),
+              var_importance = tau_list$var_importance))
+
 }
 
 
