@@ -30,6 +30,8 @@ estimate_cate <- function(trial_tbl,
 
   # assertions on trial_tbl
   # TODO: Assert site, treatment, and outcome cols are not in covariate_col or drop_col
+  # TODO: Assert that treatment variable is 0/1
+  # TODO: Assert that treatment variable doesn't have more than 2 levels
 
   if (is.null(covariate_col)) {
     exclude_col <- c(site_col, treatment_col, outcome_col, drop_col)

@@ -115,14 +115,30 @@ generate_aug_tau.slearner_args <- function(named_args,
                                         "ensembleforest")
 
   extra_args <- list(...)
-  relevant_args <- extra_args[names(extra_args) %in% names(formals(causalToolbox::S_RF))]
-  srf_fit <- do.call(causalToolbox::S_RF,
-                     c(list(feat = primary_tau_args$feature_tbl,
-                            tr = primary_tau_args$treatment_vec,
-                            yobs = primary_tau_args$outcome_vec),
-                       relevant_args))
+  relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]
+  relevant_args[["keeptrees"]] <- TRUE
+  relevant_args[["verbose"]] <- FALSE
+
+  sbart_fit <- do.call(dbarts::bart,
+                       c(list(x.train = primary_tau_args$feature_tbl %>%
+                                dplyr::mutate(W = primary_tau_args$treatment_vec),
+                              y.train = primary_tau_args$outcome_vec),
+                         relevant_args))
+
+  yhat_observed_all <- apply(predict(sbart_fit,
+                                     alldata_tau_args$feature_tbl %>%
+                                       dplyr::mutate(W = alldata_tau_args$treatment_vec)),
+                             2,
+                             mean)
+  yhat_counterfactual_all <- apply(predict(sbart_fit,
+                                           alldata_tau_args$feature_tbl %>%
+                                             dplyr::mutate(W = as.numeric(alldata_tau_args$treatment_vec == 0))),
+                                   2,
+                                   mean)
+
   named_args$trial_tbl %>%
-    dplyr::mutate(tau_hat = causalToolbox::EstimateCate(srf_fit,
-                                                        alldata_tau_args$feature_tbl),
+    dplyr::mutate(tau_hat = estimate_sbart_tau(yhat_observed_all,
+                                               yhat_counterfactual_all,
+                                               alldata_tau_args$treatment_vec),
                   model_site = as.factor(site_val))
 }
