@@ -43,8 +43,16 @@ generate_tau.studyindicator_args <- function(named_args,
       importance = as.numeric(grf::variable_importance(tau))
     )
 
-    return(list(tau_hat = as.numeric(tau$predictions),
-                var_importance = var_import))
+    result <- list(tau_hat = as.numeric(tau$predictions),
+                   variance_estimates = predict(tau,
+                                                estimate.variance = TRUE)$variance.estimates,
+                   var_importance = var_import)
+
+    if (named_args$incl_cfobject) {
+      result$causalforest_obj = tau
+    }
+
+    return(result)
   } else if (named_args$estimation_method == "xlearner") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(causalToolbox::X_RF))]
@@ -56,6 +64,7 @@ generate_tau.studyindicator_args <- function(named_args,
 
     return(list(tau_hat = causalToolbox::EstimateCate(xrf_fit,
                                                       tau_args$feature_tbl),
+                variance_estimates = NULL,
                 var_importance = NULL))
   } else if (named_args$estimation_method == "slearner") {
     extra_args <- list(...)
@@ -69,10 +78,12 @@ generate_tau.studyindicator_args <- function(named_args,
                                 x.test = tau_args$feature_tbl %>%
                                   dplyr::mutate(W = as.numeric(tau_args$treatment_vec == 0))),
                            relevant_args))
+    sbart_estimates <- estimate_sbart_tau(sbart_fit$yhat.train,
+                                          sbart_fit$yhat.test,
+                                          tau_args$treatment_vec)
 
-    return(list(tau_hat = estimate_sbart_tau(sbart_fit$yhat.train.mean,
-                                             sbart_fit$yhat.test.mean,
-                                             tau_args$treatment_vec),
+    return(list(tau_hat = sbart_estimates$means_cate,
+                variance_estimates = sbart_estimates$vars_cate,
                 var_importance = NULL))
   }
 }

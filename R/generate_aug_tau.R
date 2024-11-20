@@ -125,20 +125,16 @@ generate_aug_tau.slearner_args <- function(named_args,
                               y.train = primary_tau_args$outcome_vec),
                          relevant_args))
 
-  yhat_observed_all <- apply(predict(sbart_fit,
-                                     alldata_tau_args$feature_tbl %>%
-                                       dplyr::mutate(W = alldata_tau_args$treatment_vec)),
-                             2,
-                             mean)
-  yhat_counterfactual_all <- apply(predict(sbart_fit,
-                                           alldata_tau_args$feature_tbl %>%
-                                             dplyr::mutate(W = as.numeric(alldata_tau_args$treatment_vec == 0))),
-                                   2,
-                                   mean)
+  observed_all <- predict(sbart_fit,
+                          alldata_tau_args$feature_tbl %>%
+                            dplyr::mutate(W = alldata_tau_args$treatment_vec))
+  counterfactual_all <- predict(sbart_fit,
+                                alldata_tau_args$feature_tbl %>%
+                                  dplyr::mutate(W = as.numeric(alldata_tau_args$treatment_vec == 0)))
 
   named_args$trial_tbl %>%
-    dplyr::mutate(tau_hat = estimate_sbart_tau(yhat_observed_all,
-                                               yhat_counterfactual_all,
-                                               alldata_tau_args$treatment_vec),
+    dplyr::mutate(tau_hat = estimate_sbart_tau(observed_all,
+                                               counterfactual_all,
+                                               alldata_tau_args$treatment_vec)$means_cate,
                   model_site = as.factor(site_val))
 }

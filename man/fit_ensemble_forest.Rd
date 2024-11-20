@@ -4,7 +4,7 @@
 \alias{fit_ensemble_forest}
 \title{Title}
 \usage{
-fit_ensemble_forest(aug_data, site_col, covarite_col, ...)
+fit_ensemble_forest(aug_data, site_col, covariate_col, ...)
 }
 \arguments{
 \item{...}{}
