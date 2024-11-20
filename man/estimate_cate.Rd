@@ -13,6 +13,7 @@ estimate_cate(
   outcome_col,
   covariate_col = NULL,
   drop_col = NULL,
+  incl_cfobject = FALSE,
   ...
 )
 }
