@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{cate}(
   cate_obj,
-  which_plot = 1:3,
+  which_plot = 1:4,
   captions = c("Histogram of CATEs", "Boxplot of CATEs vs Study Membership",
     "Confidence Intervals for CATEs"),
   ask = TRUE

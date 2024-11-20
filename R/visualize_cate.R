@@ -9,12 +9,11 @@
 #'
 #' @examples
 plot.cate <- function(cate_obj,
-                      which_plot = 1:3,
+                      which_plot = 1:4,
                       captions = c("Histogram of CATEs",
                                    "Boxplot of CATEs vs Study Membership",
                                    "Confidence Intervals for CATEs"),
                       ask = TRUE) {
-
   assertthat::assert_that(
     inherits(cate_obj, "cate"),
     msg = "use only with \"cate\" objects"
@@ -22,11 +21,11 @@ plot.cate <- function(cate_obj,
 
   assertthat::assert_that(
     is.numeric(which_plot),
-    all(dplyr::between(which_plot, 1, 3)),
+    all(dplyr::between(which_plot, 1, 4)),
     msg = "'which_plot' must be in 1:3"
   )
 
-  show <- rep(FALSE, 3)
+  show <- rep(FALSE, 4)
   show[which_plot] <- TRUE
 
   model <- cate_obj$model
@@ -39,58 +38,46 @@ plot.cate <- function(cate_obj,
   plots <- list()
 
   if (show[1]) {
-    plots <- c(plots,
-               list(ggplot2::ggplot(model, ggplot2::aes(x = tau_hat)) +
-                      ggplot2::geom_histogram(color="black", fill="white", bins=30) +
-                      ggplot2::xlab("CATE Estimate")))
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = tau_hat)) +
+      ggplot2::geom_histogram(color="black", fill="white", bins=30) +
+      ggplot2::xlab("CATE Estimate")
+    print(p)
   }
 
   if (show[2]) {
     site_col <- cate_obj$site_col
-    plots <- c(plots,
-               list(ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(site_col), y = tau_hat)) +
-                      ggplot2::geom_boxplot() +
-                      ggplot2::xlab("Study/Site ID") +
-                      ggplot2::ylab("CATE Estimate")))
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(site_col), y = tau_hat)) +
+      ggplot2::geom_boxplot() +
+      ggplot2::xlab("Study/Site ID") +
+      ggplot2::ylab("CATE Estimate")
+    print(p)
   }
 
   if (show[3]) {
-    plots <- c(plots,
-               list(model %>%
-                      dplyr::arrange(tau_hat) %>%
-                      tibble::rownames_to_column(var = "id_ord") %>%
-                      dplyr::mutate(id_ord = as.numeric(id_ord),
-                                    lower = tau_hat - 1.96 * sqrt(var_hat),
-                                    upper = tau_hat + 1.96 * sqrt(var_hat)) %>%
-                      ggplot2::ggplot(ggplot2::aes(x = id_ord, y = tau_hat)) +
-                      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower,
-                                                          ymax = upper),
-                                             colour = "lightgray") +
-                      ggplot2::geom_hline(ggplot2::aes(yintercept = 0),
-                                          linetype = "dashed",
-                                          color = "blue") +
-                      ggplot2::geom_point() +
-                      ggplot2::xlab("Profile ID (by CATE magnitude)") +
-                      ggplot2::ylab("CATE Estimate (95% CI)") +
-                      ggplot2::theme_minimal() +
-                      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                                     axis.ticks.x = ggplot2::element_blank())))
-  }
-
-  for (p in plots) {
+    p <- model %>%
+      dplyr::arrange(tau_hat) %>%
+      tibble::rownames_to_column(var = "id_ord") %>%
+      dplyr::mutate(id_ord = as.numeric(id_ord),
+                    lower = tau_hat - 1.96 * sqrt(var_hat),
+                    upper = tau_hat + 1.96 * sqrt(var_hat)) %>%
+      ggplot2::ggplot(ggplot2::aes(x = id_ord, y = tau_hat)) +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower,
+                                          ymax = upper),
+                             colour = "lightgray") +
+      ggplot2::geom_hline(ggplot2::aes(yintercept = 0),
+                          linetype = "dashed",
+                          color = "blue") +
+      ggplot2::geom_point() +
+      ggplot2::xlab("Profile ID (by CATE magnitude)") +
+      ggplot2::ylab("CATE Estimate (95% CI)") +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank())
     print(p)
-  }
-}
 
-#' Title
-#'
-#' @param cate_obj
-#'
-#' @return
-#' @export
-#'
-#' @examples
-plot_interpretationtree <- function(cate_obj) {
+  }
+
+  if (show[4]) {
     covariate_col <- cate_obj$covariate_col
     fml <- as.formula(paste("tau_hat ~ ", paste(covariate_col, collapse="+")))
     int_tree <- rpart::rpart(fml, data = model)
@@ -98,6 +85,7 @@ plot_interpretationtree <- function(cate_obj) {
                                     cp = int_tree$cptable[which.min(int_tree$cptable[,"xerror"]),
                                                           "CP"])
     rpart.plot::prp(int_tree, varlen = 15)
+  }
 }
 
 #' Title
@@ -128,8 +116,7 @@ plot_vteffect <- function(cate_obj, covariate_name) {
 #' @export
 #'
 #' @examples
-plot_blp <- function(cate_obj,
-                     combine = FALSE) {
+plot_blp <- function(cate_obj) {
   fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
   feat <- model.matrix(fm, cate_obj$model)
   blpList <- grf::best_linear_projection(cate_obj$causalforest, A = feat)
