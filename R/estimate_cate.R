@@ -1,16 +1,52 @@
-#' Title
+#' Estimate Heterogeneous Treatment Effects Across Multiple Randomized Control Trials
 #'
-#' @param trial_tbl
-#' @param estimation_method
-#' @param aggregation_method
-#' @param site_col
-#' @param treat_col
-#' @param outcome_col
-#' @param covariate_col
-#' @param drop_col
-#' @param ...
+#' @description
+#' `estimate_cate` is used to estimate conditional average treatment effect (CATE) from multiple
+#' studies.
 #'
-#' @return
+#' @param trial_tbl tbl. A tbl containing columns for treatment, outcome, site ID, and any
+#'  additional covariates of interest. All site data must be included in single tbl.
+#' @param estimation_method string. Single-study mehtods for estimating CATE (tau) for each
+#'  observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
+#'  "xlearner", and "causalforest".
+#' @param aggregation_method string. Method for aggregating results across sites. Available methods
+#'  are:
+#'    - "studyindicator": Pool all data together but keep study ID as an indicator variable and
+#'    includes them as covariates in the single-study method selected in `estimation_method`.
+#'    - "ensembleforest": Fit the `estimation_method` within each study, apply each model to all
+#'    individuals across all sites, then fit ensemble random forest to augmented data.
+#' @param site_col string. Name of the column in `trial_tbl` with site ID.
+#' @param treatment_col string. Name of the column in `trial_tbl` with treatment assignment.
+#' @param outcome_col string. Name of the column in `trial_tbl` with outcome values.
+#' @param covariate_col character vector. Name(s) of columns in `trial_tbl` to be included as
+#'  model covariates. Defaults to NULL.
+#' @param drop_col character vector. Name(s) of columns in `trial_tbl` to be excluded from
+#'  model covariates. Defaults to NULL.
+#' @param incl_cfobject logical. When TRUE, if `estimation_method` is "causalforest" the causal
+#'  forest object is saved and returned.
+#' @param ... Arguments to be passed to `estimation_method` and/or `aggregation_method`. Note the
+#'  following exceptions:
+#'    - `estimation_method` = "slearner"
+#'      - `dbarts::bart()` argument `keeptrees` set to TRUE
+#'      - `dbarts::bart()` argument `verbose` set to FALSE when `aggregtion_method` is
+#'      "ensembleforest"
+#'    - `aggregation_method` = "ensembleforest"
+#'      - `ranger::ranger()` argument `importance` set to "impurity"
+#'      - `ranger::ranger()` argument `keep.inbag` set to TRUE
+#'
+#' @return An object of class "cate" is a list containing the following components:
+#'  - `estimation_method`: the type of estimation method used
+#'  - `aggregation_method`: the type of aggregation method used
+#'  - `model`: `trial_tbl` with additional columns
+#'    - `tau_hat`: conditional average treatment effect for each observation
+#'    - `variance_estimates`: variance estimate for each tau_hat (not available when
+#'    `estimation_method` set to "xlearner" or `aggregation_method` set to "ensembleforest)
+#'  - `var_importance`: TBD
+#'  - `site_col`: name of site ID column
+#'  - `treatment_col`: name of treatment column
+#'  - `outcome_col`: name of outcome column
+#'  - `covariate_col`: name(s) of covariate columns
+#'
 #' @export
 #'
 #' @examples

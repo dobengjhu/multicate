@@ -14,16 +14,8 @@ generate_aug_tau <- function(named_args,
   UseMethod("generate_aug_tau")
 }
 
-#' Title
-#'
-#' @param site_val
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_aug_tau
 generate_aug_tau.causalforest_args <- function(named_args,
                                                site_val,
                                                ...) {
@@ -57,16 +49,8 @@ generate_aug_tau.causalforest_args <- function(named_args,
   dplyr::bind_rows(primary_site_tau, other_site_tau)
 }
 
-#' Title
-#'
-#' @param site_val
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_aug_tau
 generate_aug_tau.xlearner_args <- function(named_args,
                                            site_val,
                                            ...) {
@@ -92,16 +76,8 @@ generate_aug_tau.xlearner_args <- function(named_args,
                   model_site = as.factor(site_val))
 }
 
-#' Title
-#'
-#' @param site_val
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_aug_tau
 generate_aug_tau.slearner_args <- function(named_args,
                                            site_val,
                                            ...) {

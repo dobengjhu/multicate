@@ -2,9 +2,18 @@
 % Please edit documentation in R/generate_aug_tau.R
 \name{generate_aug_tau}
 \alias{generate_aug_tau}
+\alias{generate_aug_tau.causalforest_args}
+\alias{generate_aug_tau.xlearner_args}
+\alias{generate_aug_tau.slearner_args}
 \title{Title}
 \usage{
 generate_aug_tau(named_args, site_val, ...)
+
+\method{generate_aug_tau}{causalforest_args}(named_args, site_val, ...)
+
+\method{generate_aug_tau}{xlearner_args}(named_args, site_val, ...)
+
+\method{generate_aug_tau}{slearner_args}(named_args, site_val, ...)
 }
 \arguments{
 \item{...}{}

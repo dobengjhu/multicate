@@ -1,9 +1,10 @@
-#' Title
+#' Generate CATE Estimates Using Single-Study Approach with Study Indicator
 #'
-#' @param named_args
-#' @param ...
+#' @param named_args list. A list of pre-specified argument values from
+#'  `multicate::estimate_cate()`.
+#' @param ... list. Arguments to be passed to `estimation_method` and/or `aggregation_method`.
 #'
-#' @return
+#' @return A list ...
 #' @export
 #'
 #' @examples
@@ -12,16 +13,8 @@ generate_tau <- function(named_args,
   UseMethod("generate_tau")
 }
 
-
-#' Title
-#'
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_tau
 generate_tau.studyindicator_args <- function(named_args,
                                              ...) {
   tau_args <- prepare_cate_data(
@@ -88,15 +81,8 @@ generate_tau.studyindicator_args <- function(named_args,
   }
 }
 
-#' Title
-#'
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_tau
 generate_tau.ensembleforest_args <- function(named_args,
                                              ...) {
   aug_data <- build_aug_data(named_args,

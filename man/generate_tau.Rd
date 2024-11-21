@@ -2,13 +2,25 @@
 % Please edit documentation in R/generate_tau.R
 \name{generate_tau}
 \alias{generate_tau}
-\title{Title}
+\alias{generate_tau.studyindicator_args}
+\alias{generate_tau.ensembleforest_args}
+\title{Generate CATE Estimates Using Single-Study Approach with Study Indicator}
 \usage{
 generate_tau(named_args, ...)
+
+\method{generate_tau}{studyindicator_args}(named_args, ...)
+
+\method{generate_tau}{ensembleforest_args}(named_args, ...)
 }
 \arguments{
-\item{...}{}
+\item{named_args}{list. A list of pre-specified argument values from
+\code{multicate::estimate_cate()}.}
+
+\item{...}{list. Arguments to be passed to \code{estimation_method} and/or \code{aggregation_method}.}
+}
+\value{
+A list ...
 }
 \description{
-Title
+Generate CATE Estimates Using Single-Study Approach with Study Indicator
 }

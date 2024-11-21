@@ -4,7 +4,7 @@
 \alias{plot_blp}
 \title{Title}
 \usage{
-plot_blp(cate_obj, combine = FALSE)
+plot_blp(cate_obj)
 }
 \arguments{
 \item{combine}{}
