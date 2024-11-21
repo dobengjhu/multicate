@@ -1,12 +1,19 @@
-#' Title
+#' Estimate CATE for S-learner Using BART
 #'
-#' @param sbart
-#' @param w
+#' @param observed matrix. An array/matrix of posterior samples from
+#'  \link[dbarts:bart]{dbarts::bart()} using treatment indicators based on user-provided treatment
+#'  assignments, `w`.
+#' @param counterfactual matrix. An array/matrix of posterior samples from
+#'  \link[dbarts:bart]{dbarts::bart()} using treatment indicators based on the inverse of
+#'  user-provided treatment assignments, `w`.
+#' @param w numeric vector. Vector of treatment indicators.
 #'
-#' @return
-#'
-#' @examples
-estimate_sbart_tau <- function(observed, counterfactual, w) {
+#' @return A list with the following elements:
+#'  - `means_cate`: Estimated conditional average treatment effects.
+#'  - `vars_cate`: Variance associated with `means_cate`
+estimate_sbart_tau <- function(observed,
+                               counterfactual,
+                               w) {
   yhat_observed <- apply(observed, 2, mean)
   yhat_counterfactual <- apply(counterfactual, 2, mean)
   vars_observed <- apply(observed, 2, var)

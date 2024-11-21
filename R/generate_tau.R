@@ -1,13 +1,16 @@
 #' Generate CATE Estimates Using Single-Study Approach with Study Indicator
 #'
-#' @param named_args list. A list of pre-specified argument values from
-#'  `multicate::estimate_cate()`.
+#' @param named_args list. A list of pre-specified argument values from \link{estimate_cate}.
 #' @param ... list. Arguments to be passed to `estimation_method` and/or `aggregation_method`.
 #'
-#' @return A list ...
-#' @export
-#'
-#' @examples
+#' @return A list with the following elements:
+#'  - `tau_hat`: Predicted conditional average treatment effect for each observation
+#'  - `variance_estimates`: variance estimate for each tau_hat (not available when
+#'    `estimation_method` set to "xlearner" or `aggregation_method` set to "ensembleforest)
+#'  - `var_importance`: TBD
+#'  - `causalforest_obj`: Trained causal forest object from
+#'    \link[grf:causal_forest]{grf::causal_forest} (If `estimation_method` is set to "causalforest"
+#'    and `incl_cfobject` is TRUE)
 generate_tau <- function(named_args,
                          ...) {
   UseMethod("generate_tau")

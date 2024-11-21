@@ -19,9 +19,10 @@ estimate_cate(
 }
 \arguments{
 \item{trial_tbl}{tbl. A tbl containing columns for treatment, outcome, site ID, and any
-additional covariates of interest. All site data must be included in single tbl.}
+additional covariates of interest. All site data must be included in single tbl. Note that
+only two treatments can be considered and treatment must be coded as 0/1 (numeric).}
 
-\item{estimation_method}{string. Single-study mehtods for estimating CATE (tau) for each
+\item{estimation_method}{string. Single-study methods for estimating CATE (tau) for each
 observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
 "xlearner", and "causalforest".}
 
@@ -54,19 +55,19 @@ following exceptions:
 \itemize{
 \item \code{estimation_method} = "slearner"
 \itemize{
-\item \code{dbarts::bart()} argument \code{keeptrees} set to TRUE
-\item \code{dbarts::bart()} argument \code{verbose} set to FALSE when \code{aggregtion_method} is
+\item \link[dbarts:bart]{dbarts::bart()} argument \code{keeptrees} set to TRUE
+\item \link[dbarts:bart]{dbarts::bart()} argument \code{verbose} set to FALSE when \code{aggregation_method} is
 "ensembleforest"
 }
 \item \code{aggregation_method} = "ensembleforest"
 \itemize{
-\item \code{ranger::ranger()} argument \code{importance} set to "impurity"
-\item \code{ranger::ranger()} argument \code{keep.inbag} set to TRUE
+\item \link[ranger:ranger]{ranger::ranger()} argument \code{importance} set to "impurity"
+\item \link[ranger:ranger]{ranger::ranger()} argument \code{keep.inbag} set to TRUE
 }
 }}
 }
 \value{
-An object of class "cate" is a list containing the following components:
+An object of class "cate" is a list containing the following elements:
 \itemize{
 \item \code{estimation_method}: the type of estimation method used
 \item \code{aggregation_method}: the type of aggregation method used
@@ -81,6 +82,8 @@ An object of class "cate" is a list containing the following components:
 \item \code{treatment_col}: name of treatment column
 \item \code{outcome_col}: name of outcome column
 \item \code{covariate_col}: name(s) of covariate columns
+\item \code{causalforest}: Trained causal forest object from \link[grf:causal_forest]{causal_forest} (If
+\code{estimation_method} is set to "causalforest" and \code{incl_cfobject} is TRUE)
 }
 }
 \description{

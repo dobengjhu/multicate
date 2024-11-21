@@ -2,13 +2,19 @@
 % Please edit documentation in R/visualize_cate.R
 \name{plot_vteffect}
 \alias{plot_vteffect}
-\title{Title}
+\title{Plot Variable Treatment Effect}
 \usage{
 plot_vteffect(cate_obj, covariate_name)
 }
 \arguments{
-\item{covariate_name}{}
+\item{cate_obj}{list. An object resulting from \link{estimate_cate}.}
+
+\item{covariate_name}{string. Name of a covariate included in dataset used to estimate tau_hat.}
 }
 \description{
-Title
+Plot Variable Treatment Effect
+}
+\details{
+This function plots the value of the selected covariate for each observation in the dataset
+against the value of tau_hat for the variable. This is what the findings mean...
 }

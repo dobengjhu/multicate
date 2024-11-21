@@ -2,19 +2,21 @@
 % Please edit documentation in R/visualize_cate.R
 \name{plot.cate}
 \alias{plot.cate}
-\title{Title}
+\title{Plot Diagnostics for a CATE Object}
 \usage{
-\method{plot}{cate}(
-  cate_obj,
-  which_plot = 1:4,
-  captions = c("Histogram of CATEs", "Boxplot of CATEs vs Study Membership",
-    "Confidence Intervals for CATEs"),
-  ask = TRUE
-)
+\method{plot}{cate}(cate_obj, which_plot = 1:3, ask = TRUE)
 }
 \arguments{
-\item{captions}{}
+\item{cate_obj}{\code{cate} list. An object resulting from \link{estimate_cate}.}
+
+\item{which_plot}{numeric vector. A vector indicating which plots should be generated.}
+
+\item{ask}{logical. When TRUE, the user is asked before each plot, see
+\link[graphics:par]{par(ask = .)}.}
 }
 \description{
-Title
+Four plots (selectable by \code{which_plot}) currently available: a histogram of estimated conditional
+average treatment effects (CATEs), a boxplot of CATEs stratified by study membership, a plot of
+95\% confidence intervals for all CATEs sorted in order to CATE estimate value, and an
+interpretation tree (only available when \code{estimation_method} is set to "causalforest")
 }

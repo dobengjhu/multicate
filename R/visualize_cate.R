@@ -1,18 +1,21 @@
-#' Title
+#' Plot Diagnostics for a CATE Object
 #'
-#' @param cate_obj
-#' @param which_plot
-#' @param captions
+#' @description
+#' Four plots (selectable by `which_plot`) currently available: a histogram of estimated conditional
+#' average treatment effects (CATEs), a boxplot of CATEs stratified by study membership, a plot of
+#' 95% confidence intervals for all CATEs sorted in order to CATE estimate value, and an
+#' interpretation tree (only available when `estimation_method` is set to "causalforest")
 #'
-#' @return
+#' @param cate_obj `cate` list. An object resulting from \link{estimate_cate}.
+#' @param which_plot numeric vector. A vector indicating which plots should be generated.
+#' @param ask logical. When TRUE, the user is asked before each plot, see
+#'  \link[graphics:par]{par(ask = .)}.
+#'
 #' @export
 #'
 #' @examples
 plot.cate <- function(cate_obj,
-                      which_plot = 1:4,
-                      captions = c("Histogram of CATEs",
-                                   "Boxplot of CATEs vs Study Membership",
-                                   "Confidence Intervals for CATEs"),
+                      which_plot = 1:3,
                       ask = TRUE) {
   assertthat::assert_that(
     inherits(cate_obj, "cate"),
@@ -25,6 +28,12 @@ plot.cate <- function(cate_obj,
     msg = "'which_plot' must be in 1:3"
   )
 
+  if (4 %in% which_plot) {
+    assertthat::assert_that(
+      "causalforest" %in% names(cate_obj)
+    )
+  }
+
   show <- rep(FALSE, 4)
   show[which_plot] <- TRUE
 
@@ -34,8 +43,6 @@ plot.cate <- function(cate_obj,
     devAskNewPage(TRUE)
     on.exit(devAskNewPage(FALSE))
   }
-
-  plots <- list()
 
   if (show[1]) {
     p <- ggplot2::ggplot(model, ggplot2::aes(x = tau_hat)) +
@@ -88,13 +95,16 @@ plot.cate <- function(cate_obj,
   }
 }
 
-#' Title
+#' Plot Variable Treatment Effect
 #'
-#' @param cate_obj
-#' @param covariate_name
+#' @param cate_obj list. An object resulting from \link{estimate_cate}.
+#' @param covariate_name string. Name of a covariate included in dataset used to estimate tau_hat.
 #'
-#' @return
 #' @export
+#'
+#' @details
+#' This function plots the value of the selected covariate for each observation in the dataset
+#' against the value of tau_hat for the variable. This is what the findings mean...
 #'
 #' @examples
 plot_vteffect <- function(cate_obj, covariate_name) {
@@ -107,13 +117,14 @@ plot_vteffect <- function(cate_obj, covariate_name) {
     ggplot2::ylab("CATE Estimate")
 }
 
-#' Title
+#' Plot Best Linear Projection
 #'
-#' @param cate_obj
-#' @param combine
+#' @param cate_obj list. An object resulting from \link{estimate_cate}.
 #'
-#' @return
 #' @export
+#'
+#' @details
+#' Additional details...
 #'
 #' @examples
 plot_blp <- function(cate_obj) {

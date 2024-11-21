@@ -5,8 +5,9 @@
 #' studies.
 #'
 #' @param trial_tbl tbl. A tbl containing columns for treatment, outcome, site ID, and any
-#'  additional covariates of interest. All site data must be included in single tbl.
-#' @param estimation_method string. Single-study mehtods for estimating CATE (tau) for each
+#'  additional covariates of interest. All site data must be included in single tbl. Note that
+#'  only two treatments can be considered and treatment must be coded as 0/1 (numeric).
+#' @param estimation_method string. Single-study methods for estimating CATE (tau) for each
 #'  observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
 #'  "xlearner", and "causalforest".
 #' @param aggregation_method string. Method for aggregating results across sites. Available methods
@@ -27,14 +28,14 @@
 #' @param ... Arguments to be passed to `estimation_method` and/or `aggregation_method`. Note the
 #'  following exceptions:
 #'    - `estimation_method` = "slearner"
-#'      - `dbarts::bart()` argument `keeptrees` set to TRUE
-#'      - `dbarts::bart()` argument `verbose` set to FALSE when `aggregtion_method` is
+#'      - \link[dbarts:bart]{dbarts::bart()} argument `keeptrees` set to TRUE
+#'      - \link[dbarts:bart]{dbarts::bart()} argument `verbose` set to FALSE when `aggregation_method` is
 #'      "ensembleforest"
 #'    - `aggregation_method` = "ensembleforest"
-#'      - `ranger::ranger()` argument `importance` set to "impurity"
-#'      - `ranger::ranger()` argument `keep.inbag` set to TRUE
+#'      - \link[ranger:ranger]{ranger::ranger()} argument `importance` set to "impurity"
+#'      - \link[ranger:ranger]{ranger::ranger()} argument `keep.inbag` set to TRUE
 #'
-#' @return An object of class "cate" is a list containing the following components:
+#' @return An object of class "cate" is a list containing the following elements:
 #'  - `estimation_method`: the type of estimation method used
 #'  - `aggregation_method`: the type of aggregation method used
 #'  - `model`: `trial_tbl` with additional columns
@@ -46,6 +47,8 @@
 #'  - `treatment_col`: name of treatment column
 #'  - `outcome_col`: name of outcome column
 #'  - `covariate_col`: name(s) of covariate columns
+#'  - `causalforest`: Trained causal forest object from \link[grf:causal_forest]{causal_forest} (If
+#'    `estimation_method` is set to "causalforest" and `incl_cfobject` is TRUE)
 #'
 #' @export
 #'
@@ -69,6 +72,7 @@ estimate_cate <- function(trial_tbl,
   # TODO: Assert site, treatment, and outcome cols are not in covariate_col or drop_col
   # TODO: Assert that treatment variable is 0/1
   # TODO: Assert that treatment variable doesn't have more than 2 levels
+  # TODO: Assert outcome is numeric
   # TODO: Assert incl_cfobject is TRUE or FALSE
 
   if (is.null(covariate_col)) {

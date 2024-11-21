@@ -5,7 +5,7 @@
 \alias{generate_aug_tau.causalforest_args}
 \alias{generate_aug_tau.xlearner_args}
 \alias{generate_aug_tau.slearner_args}
-\title{Title}
+\title{Generate Augmented Dataset Based on Selected Estimation Method}
 \usage{
 generate_aug_tau(named_args, site_val, ...)
 
@@ -16,8 +16,20 @@ generate_aug_tau(named_args, site_val, ...)
 \method{generate_aug_tau}{slearner_args}(named_args, site_val, ...)
 }
 \arguments{
-\item{...}{}
+\item{named_args}{list. A list of pre-specified argument values from
+\code{multicate::estimate_cate()}.}
+
+\item{site_val}{string, numeric, or factor. Unique identifier for primary site of interest}
+
+\item{...}{Additional arguments to be passed to \code{estimation_method}.}
+}
+\value{
+A tbl with additional column \code{tau_hat} predicted for each observation based on a model
+using the selected \code{estimation_method} trained on each site in turn. As a result, every
+observation will have a separate row with a tau_hat prediction based on models trained on each
+site (e.g., if the original data includes k sites, each with n observations, then the returned
+tbl will have nk oservations)
 }
 \description{
-Title
+Generate Augmented Dataset Based on Selected Estimation Method
 }
