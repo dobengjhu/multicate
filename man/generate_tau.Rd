@@ -2,13 +2,33 @@
 % Please edit documentation in R/generate_tau.R
 \name{generate_tau}
 \alias{generate_tau}
-\title{Title}
+\alias{generate_tau.studyindicator_args}
+\alias{generate_tau.ensembleforest_args}
+\title{Generate CATE Estimates Using Single-Study Approach with Study Indicator}
 \usage{
 generate_tau(named_args, ...)
+
+\method{generate_tau}{studyindicator_args}(named_args, ...)
+
+\method{generate_tau}{ensembleforest_args}(named_args, ...)
 }
 \arguments{
-\item{...}{}
+\item{named_args}{list. A list of pre-specified argument values from \link{estimate_cate}.}
+
+\item{...}{list. Arguments to be passed to \code{estimation_method} and/or \code{aggregation_method}.}
+}
+\value{
+A list with the following elements:
+\itemize{
+\item \code{tau_hat}: Predicted conditional average treatment effect for each observation
+\item \code{variance_estimates}: variance estimate for each tau_hat (not available when
+\code{estimation_method} set to "xlearner" or \code{aggregation_method} set to "ensembleforest)
+\item \code{var_importance}: TBD
+\item \code{causalforest_obj}: Trained causal forest object from
+\link[grf:causal_forest]{grf::causal_forest} (If \code{estimation_method} is set to "causalforest"
+and \code{incl_cfobject} is TRUE)
+}
 }
 \description{
-Title
+Generate CATE Estimates Using Single-Study Approach with Study Indicator
 }

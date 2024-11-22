@@ -2,13 +2,28 @@
 % Please edit documentation in R/helpers.R
 \name{estimate_sbart_tau}
 \alias{estimate_sbart_tau}
-\title{Title}
+\title{Estimate CATE for S-learner Using BART}
 \usage{
 estimate_sbart_tau(observed, counterfactual, w)
 }
 \arguments{
-\item{w}{}
+\item{observed}{matrix. An array/matrix of posterior samples from
+\link[dbarts:bart]{dbarts::bart()} using treatment indicators based on user-provided treatment
+assignments, \code{w}.}
+
+\item{counterfactual}{matrix. An array/matrix of posterior samples from
+\link[dbarts:bart]{dbarts::bart()} using treatment indicators based on the inverse of
+user-provided treatment assignments, \code{w}.}
+
+\item{w}{numeric vector. Vector of treatment indicators.}
+}
+\value{
+A list with the following elements:
+\itemize{
+\item \code{means_cate}: Estimated conditional average treatment effects.
+\item \code{vars_cate}: Variance associated with \code{means_cate}
+}
 }
 \description{
-Title
+Estimate CATE for S-learner Using BART
 }

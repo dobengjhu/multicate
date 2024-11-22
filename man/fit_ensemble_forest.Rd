@@ -2,13 +2,28 @@
 % Please edit documentation in R/fit_ensemble_forest.R
 \name{fit_ensemble_forest}
 \alias{fit_ensemble_forest}
-\title{Title}
+\title{Fit Ensemble Forest}
 \usage{
 fit_ensemble_forest(aug_data, site_col, covariate_col, ...)
 }
 \arguments{
-\item{...}{}
+\item{aug_data}{tbl.}
+
+\item{site_col}{string. Name of the column in \code{trial_tbl} with site ID.}
+
+\item{...}{Additional arguments to be passed to \code{ranger::ranger()}.}
+
+\item{covarite_col}{character vector. Name(s) of columns in \code{trial_tbl} to be included as
+model covariates.}
+}
+\value{
+A list with the following elements:
+\itemize{
+\item \code{tau_hat}: Predicted conditional average treatment effect for each observation
+\item \code{variance_estimates}: Set to NULL when \code{aggregation_method} set to "ensembleforest.
+\item \code{var_importance}: TBD
+}
 }
 \description{
-Title
+Fit Ensemble Forest
 }

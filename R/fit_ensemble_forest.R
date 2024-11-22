@@ -1,14 +1,15 @@
-#' Title
+#' Fit Ensemble Forest
 #'
-#' @param aug_data
-#' @param site_col
-#' @param covarite_col
-#' @param ...
+#' @param aug_data tbl.
+#' @param site_col string. Name of the column in `trial_tbl` with site ID.
+#' @param covarite_col character vector. Name(s) of columns in `trial_tbl` to be included as
+#'  model covariates.
+#' @param ... Additional arguments to be passed to `ranger::ranger()`.
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A list with the following elements:
+#'  - `tau_hat`: Predicted conditional average treatment effect for each observation
+#'  - `variance_estimates`: Set to NULL when `aggregation_method` set to "ensembleforest.
+#'  - `var_importance`: TBD
 fit_ensemble_forest <- function(aug_data,
                                 site_col,
                                 covariate_col,

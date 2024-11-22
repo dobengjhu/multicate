@@ -2,13 +2,16 @@
 % Please edit documentation in R/build_aug_data.R
 \name{build_aug_data}
 \alias{build_aug_data}
-\title{Title}
+\title{Build Augmented Dataset for Ensemble Forest}
 \usage{
 build_aug_data(named_args, ...)
 }
 \arguments{
-\item{...}{}
+\item{named_args}{list. A list of pre-specified argument values from
+\code{multicate::estimate_cate()}.}
+
+\item{...}{list. Arguments to be passed to \code{estimation_method} and/or \code{aggregation_method}.}
 }
 \description{
-Title
+Build Augmented Dataset for Ensemble Forest
 }

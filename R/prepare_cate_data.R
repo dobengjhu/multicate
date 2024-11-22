@@ -1,28 +1,36 @@
-#' Title
+#' Create Feature Table for CATE Estimation
 #'
-#' @param args
-#' @param aggregation_method
+#' @description
+#' If `estimation_method` is "studyindicator", creates feature table with pre-specified covariates
+#' and adds set of dummy variables for each site to `trial_tbl`. If `estimation_method` is
+#' "ensembleforest", creates feature table with only pre-specified covariates (which will include
+#' removing site identifier column).
 #'
-#' @return
-#' @export
+#' @param named_args list. A list of pre-specified argument values from \link{estimate_cate}.
+#' @param aggregation_method string. Method for aggregating results across sites.
 #'
-#' @examples
-prepare_cate_data <- function(args,
+#' @return A list with the following elements:
+#'  - `feature tbl`: tbl with columns corresponding to pre-specified covariates
+#'  - `treatment_vec`: vector of treatment indicators for each observation
+#'  - `outcome_vec`: vector of outcome values for each observation
+#'  - `site_vec`: vector of site IDs for each observation
+#'  - `site_col`: name of site ID column
+prepare_cate_data <- function(named_args,
                               aggregation_method) {
-  # prep feature tbl
-  treatment_vec <- args$trial_tbl[[args[["treatment_col"]]]]
-  outcome_vec <- args$trial_tbl[[args[["outcome_col"]]]]
-  site_vec <- args$trial_tbl[[args[["site_col"]]]]
-  feature_tbl <- args$trial_tbl %>%
-    dplyr::select(!!rlang::sym(args$site_col), dplyr::all_of(args$covariate_col)) %>%
+
+  treatment_vec <- named_args$trial_tbl[[named_args[["treatment_col"]]]]
+  outcome_vec <- named_args$trial_tbl[[named_args[["outcome_col"]]]]
+  site_vec <- named_args$trial_tbl[[named_args[["site_col"]]]]
+  feature_tbl <- named_args$trial_tbl %>%
+    dplyr::select(!!rlang::sym(named_args$site_col), dplyr::all_of(named_args$covariate_col)) %>%
     {
       if (aggregation_method == "studyindicator") {
         fastDummies::dummy_cols(.,
-                                select_columns = args[["site_col"]],
+                                select_columns = named_args[["site_col"]],
                                 remove_selected_columns = TRUE)
       } else if (aggregation_method == "ensembleforest") {
         dplyr::select(.,
-                      -!!rlang::sym(args$site_col))
+                      -!!rlang::sym(named_args$site_col))
       }
     }
 
@@ -30,5 +38,5 @@ prepare_cate_data <- function(args,
        treatment_vec = treatment_vec,
        outcome_vec = outcome_vec,
        site_vec = site_vec,
-       site_col = args$site_col)
+       site_col = named_args$site_col)
 }

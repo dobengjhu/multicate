@@ -1,12 +1,8 @@
-#' Title
+#' Build Augmented Dataset for Ensemble Forest
 #'
-#' @param named_args
-#' @param ...
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @param named_args list. A list of pre-specified argument values from
+#'  `multicate::estimate_cate()`.
+#' @param ... list. Arguments to be passed to `estimation_method` and/or `aggregation_method`.
 build_aug_data <- function(named_args,
                            ...) {
   site_id <- named_args$trial_tbl %>%

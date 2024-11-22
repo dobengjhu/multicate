@@ -1,29 +1,23 @@
-#' Title
+#' Generate Augmented Dataset Based on Selected Estimation Method
 #'
-#' @param named_args
-#' @param site_val
-#' @param ...
+#' @param named_args list. A list of pre-specified argument values from
+#'  `multicate::estimate_cate()`.
+#' @param site_val string, numeric, or factor. Unique identifier for primary site of interest
+#' @param ... Additional arguments to be passed to `estimation_method`.
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A tbl with additional column `tau_hat` predicted for each observation based on a model
+#' using the selected `estimation_method` trained on each site in turn. As a result, every
+#' observation will have a separate row with a tau_hat prediction based on models trained on each
+#' site (e.g., if the original data includes k sites, each with n observations, then the returned
+#' tbl will have nk oservations)
 generate_aug_tau <- function(named_args,
                              site_val,
                              ...) {
   UseMethod("generate_aug_tau")
 }
 
-#' Title
-#'
-#' @param site_val
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_aug_tau
 generate_aug_tau.causalforest_args <- function(named_args,
                                                site_val,
                                                ...) {
@@ -57,16 +51,8 @@ generate_aug_tau.causalforest_args <- function(named_args,
   dplyr::bind_rows(primary_site_tau, other_site_tau)
 }
 
-#' Title
-#'
-#' @param site_val
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_aug_tau
 generate_aug_tau.xlearner_args <- function(named_args,
                                            site_val,
                                            ...) {
@@ -92,16 +78,8 @@ generate_aug_tau.xlearner_args <- function(named_args,
                   model_site = as.factor(site_val))
 }
 
-#' Title
-#'
-#' @param site_val
-#' @param named_args
-#' @param ...
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname generate_aug_tau
 generate_aug_tau.slearner_args <- function(named_args,
                                            site_val,
                                            ...) {
