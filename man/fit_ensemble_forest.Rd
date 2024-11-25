@@ -4,12 +4,12 @@
 \alias{fit_ensemble_forest}
 \title{Fit Ensemble Forest}
 \usage{
-fit_ensemble_forest(aug_data, site_col, covariate_col, ...)
+fit_ensemble_forest(aug_data, study_col, covariate_col, ...)
 }
 \arguments{
 \item{aug_data}{tbl.}
 
-\item{site_col}{string. Name of the column in \code{trial_tbl} with site ID.}
+\item{study_col}{string. Name of the column in \code{trial_tbl} with study ID.}
 
 \item{...}{Additional arguments to be passed to \code{ranger::ranger()}.}
 

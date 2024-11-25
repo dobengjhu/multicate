@@ -1,7 +1,7 @@
 #' Fit Ensemble Forest
 #'
 #' @param aug_data tbl.
-#' @param site_col string. Name of the column in `trial_tbl` with site ID.
+#' @param study_col string. Name of the column in `trial_tbl` with study ID.
 #' @param covarite_col character vector. Name(s) of columns in `trial_tbl` to be included as
 #'  model covariates.
 #' @param ... Additional arguments to be passed to `ranger::ranger()`.
@@ -11,7 +11,7 @@
 #'  - `variance_estimates`: Set to NULL when `aggregation_method` set to "ensembleforest.
 #'  - `var_importance`: TBD
 fit_ensemble_forest <- function(aug_data,
-                                site_col,
+                                study_col,
                                 covariate_col,
                                 ...) {
   extra_args <- list(...)
@@ -19,7 +19,7 @@ fit_ensemble_forest <- function(aug_data,
   relevant_args[["importance"]] <- "impurity"
   relevant_args[["keep.inbag"]] <- TRUE
 
-  fml <- as.formula(paste("tau_hat ~ ", site_col, " + ", paste(covariate_col, collapse="+")))
+  fml <- as.formula(paste("tau_hat ~ ", study_col, " + ", paste(covariate_col, collapse="+")))
 
   fit <- do.call(ranger::ranger,
                  c(list(formula = fml,
@@ -31,7 +31,7 @@ fit_ensemble_forest <- function(aug_data,
     importance = as.numeric(fit$variable.importance)
   )
 
-  return(list(tau_hat = fit$predictions[which(aug_data$S == aug_data$model_site)],
+  return(list(tau_hat = fit$predictions[which(aug_data$S == aug_data$model_study)],
               variance_estimates = NULL,
               var_importance = var_import))
 }

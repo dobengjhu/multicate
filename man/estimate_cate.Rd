@@ -8,34 +8,34 @@ estimate_cate(
   trial_tbl,
   estimation_method = c("slearner", "xlearner", "causalforest"),
   aggregation_method = c("studyindicator", "ensembleforest"),
-  site_col,
+  study_col,
   treatment_col,
   outcome_col,
   covariate_col = NULL,
   drop_col = NULL,
-  incl_cfobject = FALSE,
+  incl_cfobject = TRUE,
   ...
 )
 }
 \arguments{
-\item{trial_tbl}{tbl. A tbl containing columns for treatment, outcome, site ID, and any
-additional covariates of interest. All site data must be included in single tbl. Note that
+\item{trial_tbl}{tbl. A tbl containing columns for treatment, outcome, study ID, and any
+additional covariates of interest. All study data must be included in single tbl. Note that
 only two treatments can be considered and treatment must be coded as 0/1 (numeric).}
 
 \item{estimation_method}{string. Single-study methods for estimating CATE (tau) for each
 observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
 "xlearner", and "causalforest".}
 
-\item{aggregation_method}{string. Method for aggregating results across sites. Available methods
+\item{aggregation_method}{string. Method for aggregating results across studies Available methods
 are:
 \itemize{
 \item "studyindicator": Pool all data together but keep study ID as an indicator variable and
 includes them as covariates in the single-study method selected in \code{estimation_method}.
 \item "ensembleforest": Fit the \code{estimation_method} within each study, apply each model to all
-individuals across all sites, then fit ensemble random forest to augmented data.
+individuals across all studies, then fit ensemble random forest to augmented data.
 }}
 
-\item{site_col}{string. Name of the column in \code{trial_tbl} with site ID.}
+\item{study_col}{string. Name of the column in \code{trial_tbl} with study ID.}
 
 \item{treatment_col}{string. Name of the column in \code{trial_tbl} with treatment assignment.}
 
@@ -48,7 +48,7 @@ model covariates. Defaults to NULL.}
 model covariates. Defaults to NULL.}
 
 \item{incl_cfobject}{logical. When TRUE, if \code{estimation_method} is "causalforest" the causal
-forest object is saved and returned.}
+forest object is saved and returned. Defaults to TRUE.}
 
 \item{...}{Arguments to be passed to \code{estimation_method} and/or \code{aggregation_method}. Note the
 following exceptions:
@@ -78,7 +78,7 @@ An object of class "cate" is a list containing the following elements:
 \code{estimation_method} set to "xlearner" or \code{aggregation_method} set to "ensembleforest)
 }
 \item \code{var_importance}: TBD
-\item \code{site_col}: name of site ID column
+\item \code{study_col}: name of study ID column
 \item \code{treatment_col}: name of treatment column
 \item \code{outcome_col}: name of outcome column
 \item \code{covariate_col}: name(s) of covariate columns

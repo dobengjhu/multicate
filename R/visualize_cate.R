@@ -1,10 +1,11 @@
 #' Plot Diagnostics for a CATE Object
 #'
 #' @description
-#' Four plots (selectable by `which_plot`) currently available: a histogram of estimated conditional
+#' Five plots (selectable by `which_plot`) currently available: a histogram of estimated conditional
 #' average treatment effects (CATEs), a boxplot of CATEs stratified by study membership, a plot of
-#' 95% confidence intervals for all CATEs sorted in order to CATE estimate value, and an
-#' interpretation tree (only available when `estimation_method` is set to "causalforest")
+#' 95% confidence intervals for all CATEs sorted in order to CATE estimate value, a best linear
+#' projection, and an interpretation tree (only available when `estimation_method` is set to
+#' "causalforest").
 #'
 #' @param cate_obj `cate` list. An object resulting from \link{estimate_cate}.
 #' @param which_plot numeric vector. A vector indicating which plots should be generated.
@@ -15,7 +16,7 @@
 #'
 #' @examples
 plot.cate <- function(cate_obj,
-                      which_plot = 1:3,
+                      which_plot = 1:5,
                       ask = TRUE) {
   assertthat::assert_that(
     inherits(cate_obj, "cate"),
@@ -24,17 +25,18 @@ plot.cate <- function(cate_obj,
 
   assertthat::assert_that(
     is.numeric(which_plot),
-    all(dplyr::between(which_plot, 1, 4)),
+    all(dplyr::between(which_plot, 1, 5)),
     msg = "'which_plot' must be in 1:3"
   )
 
   if (4 %in% which_plot) {
     assertthat::assert_that(
-      "causalforest" %in% names(cate_obj)
+      "causalforest" %in% names(cate_obj),
+      msg = ("A causal forest fit must be included as an element of the CATE object")
     )
   }
 
-  show <- rep(FALSE, 4)
+  show <- rep(FALSE, 5)
   show[which_plot] <- TRUE
 
   model <- cate_obj$model
@@ -52,10 +54,10 @@ plot.cate <- function(cate_obj,
   }
 
   if (show[2]) {
-    site_col <- cate_obj$site_col
-    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(site_col), y = tau_hat)) +
+    study_col <- cate_obj$study_col
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(study_col), y = tau_hat)) +
       ggplot2::geom_boxplot() +
-      ggplot2::xlab("Study/Site ID") +
+      ggplot2::xlab("Study ID") +
       ggplot2::ylab("CATE Estimate")
     print(p)
   }
@@ -65,8 +67,8 @@ plot.cate <- function(cate_obj,
       dplyr::arrange(tau_hat) %>%
       tibble::rownames_to_column(var = "id_ord") %>%
       dplyr::mutate(id_ord = as.numeric(id_ord),
-                    lower = tau_hat - 1.96 * sqrt(var_hat),
-                    upper = tau_hat + 1.96 * sqrt(var_hat)) %>%
+                    lower = tau_hat - 1.96 * sqrt(variance_estimates),
+                    upper = tau_hat + 1.96 * sqrt(variance_estimates)) %>%
       ggplot2::ggplot(ggplot2::aes(x = id_ord, y = tau_hat)) +
       ggplot2::geom_errorbar(ggplot2::aes(ymin = lower,
                                           ymax = upper),
@@ -85,6 +87,38 @@ plot.cate <- function(cate_obj,
   }
 
   if (show[4]) {
+    fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
+    feat <- model.matrix(fm, cate_obj$model)
+    blpList <- grf::best_linear_projection(cate_obj$causalforest, A = feat)
+
+    blps <- jtools::plot_summs(blpList,
+                               point.shape = FALSE)
+    dfg <- blps$data
+    dfg$study <- dfg$model
+
+    p <- ggplot2::ggplot(dfg,
+                         ggplot2::aes(x = study,
+                                      y = estimate,
+                                      color = term,
+                                      group = term)) +
+      ggplot2::coord_flip() +
+      ggplot2::geom_hline(yintercept = 0,
+                          linetype = "dashed",
+                          color = "black",
+                          size = 0.65) +
+      ggplot2::geom_pointrange(position = ggplot2::position_dodge(width = 0.75),
+                               ggplot2::aes(ymin = conf.low, ymax = conf.high),
+                               alpha = 0.85) +
+      ggplot2::ggtitle("CATE Best Linear Projection by Covariate") +
+      theme_MH +
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      ggplot2::theme(axis.text.y = ggplot2::element_blank())
+  }
+
+  print(p)
+
+  if (show[5]) {
     covariate_col <- cate_obj$covariate_col
     fml <- as.formula(paste("tau_hat ~ ", paste(covariate_col, collapse="+")))
     int_tree <- rpart::rpart(fml, data = model)
@@ -109,9 +143,10 @@ plot.cate <- function(cate_obj,
 #' @examples
 plot_vteffect <- function(cate_obj, covariate_name) {
   model <- cate_obj$model
+  study_col <- cate_obj$study_col
   ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
                                         y = tau_hat,
-                                        color = !!rlang::sym(site_col))) +
+                                        color = !!rlang::sym(study_col))) +
     ggplot2::geom_point() +
     ggplot2::xlab(covariate_name) +
     ggplot2::ylab("CATE Estimate")

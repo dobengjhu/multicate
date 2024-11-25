@@ -91,7 +91,7 @@ generate_tau.ensembleforest_args <- function(named_args,
   aug_data <- build_aug_data(named_args,
                              ...)
   fit_ensemble_forest(aug_data,
-                      named_args$site_col,
+                      named_args$study_col,
                       named_args$covariate_col,
                       ...)
 }
