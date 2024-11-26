@@ -1,4 +1,4 @@
-#' Estimate Heterogeneous Treatment Effects Across Multiple Randomized Control Trials
+#' Estimate Heterogeneous Treatment Effects Across Multiple Studies
 #'
 #' @description
 #' `estimate_cate` is used to estimate conditional average treatment effect (CATE) from multiple
@@ -23,8 +23,6 @@
 #'  model covariates. Defaults to NULL.
 #' @param drop_col character vector. Name(s) of columns in `trial_tbl` to be excluded from
 #'  model covariates. Defaults to NULL.
-#' @param incl_cfobject logical. When TRUE, if `estimation_method` is "causalforest" the causal
-#'  forest object is saved and returned. Defaults to TRUE.
 #' @param ... Arguments to be passed to `estimation_method` and/or `aggregation_method`. Note the
 #'  following exceptions:
 #'    - `estimation_method` = "slearner"
@@ -47,8 +45,9 @@
 #'  - `treatment_col`: name of treatment column
 #'  - `outcome_col`: name of outcome column
 #'  - `covariate_col`: name(s) of covariate columns
-#'  - `causalforest`: Trained causal forest object from \link[grf:causal_forest]{causal_forest} (If
-#'    `estimation_method` is set to "causalforest" and `incl_cfobject` is TRUE)
+#'  - `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest},
+#'  \link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
+#'  to the `estimation_method` selected.
 #'
 #' @export
 #'
@@ -61,7 +60,6 @@ estimate_cate <- function(trial_tbl,
                           outcome_col,
                           covariate_col = NULL,
                           drop_col = NULL,
-                          incl_cfobject = TRUE,
                           ...
                           ) {
   # assertions on methods
@@ -85,8 +83,7 @@ estimate_cate <- function(trial_tbl,
                      treatment_col = treatment_col,
                      outcome_col = outcome_col,
                      covariate_col = covariate_col,
-                     estimation_method = estimation_method,
-                     incl_cfobject = incl_cfobject)
+                     estimation_method = estimation_method)
   class(named_args) <- c(glue::glue("{estimation_method}_args"),
                          glue::glue("{aggregation_method}_args"))
 
@@ -103,13 +100,10 @@ estimate_cate <- function(trial_tbl,
     study_col = study_col,
     treatment_col = treatment_col,
     outcome_col = outcome_col,
-    covariate_col = covariate_col
+    covariate_col = covariate_col,
+    extra_args = list(...),
+    estimation_object = tau_list$fit_object
   )
-
-  if (incl_cfobject) {
-    cate_object$causalforest <- tau_list$causalforest_obj
-  }
-
   class(cate_object) <- "cate"
   return(cate_object)
 }

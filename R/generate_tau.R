@@ -4,13 +4,13 @@
 #' @param ... list. Arguments to be passed to `estimation_method` and/or `aggregation_method`.
 #'
 #' @return A list with the following elements:
-#'  - `tau_hat`: Predicted conditional average treatment effect for each observation
+#'  - `tau_hat`: predicted conditional average treatment effect for each observation
 #'  - `variance_estimates`: variance estimate for each tau_hat (not available when
 #'    `estimation_method` set to "xlearner" or `aggregation_method` set to "ensembleforest)
 #'  - `var_importance`: TBD
-#'  - `causalforest_obj`: Trained causal forest object from
-#'    \link[grf:causal_forest]{grf::causal_forest} (If `estimation_method` is set to "causalforest"
-#'    and `incl_cfobject` is TRUE)
+#'  - `fit_object`: object from \link[grf:causal_forest]{grf::causal_forest},
+#'  \link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
+#'  to the `estimation_method` selected.
 generate_tau <- function(named_args,
                          ...) {
   UseMethod("generate_tau")
@@ -36,19 +36,14 @@ generate_tau.studyindicator_args <- function(named_args,
 
     var_import <- tibble::tibble(
       variable = colnames(tau_args$feature_tbl),
-      importance = as.numeric(grf::variable_importance(tau))
+      importance = as.numeric(grf::variable_importance(tau)),
     )
 
-    result <- list(tau_hat = as.numeric(tau$predictions),
-                   variance_estimates = predict(tau,
-                                                estimate.variance = TRUE)$variance.estimates,
-                   var_importance = var_import)
-
-    if (named_args$incl_cfobject) {
-      result$causalforest_obj = tau
-    }
-
-    return(result)
+    return(list(tau_hat = as.numeric(tau$predictions),
+                variance_estimates = predict(tau,
+                                             estimate.variance = TRUE)$variance.estimates,
+                var_importance = var_import,
+                fit_object = tau))
   } else if (named_args$estimation_method == "xlearner") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(causalToolbox::X_RF))]
@@ -61,7 +56,8 @@ generate_tau.studyindicator_args <- function(named_args,
     return(list(tau_hat = causalToolbox::EstimateCate(xrf_fit,
                                                       tau_args$feature_tbl),
                 variance_estimates = NULL,
-                var_importance = NULL))
+                var_importance = NULL,
+                fit_object = xrf_fit))
   } else if (named_args$estimation_method == "slearner") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]
@@ -80,7 +76,8 @@ generate_tau.studyindicator_args <- function(named_args,
 
     return(list(tau_hat = sbart_estimates$means_cate,
                 variance_estimates = sbart_estimates$vars_cate,
-                var_importance = NULL))
+                var_importance = NULL,
+                fit_object = sbart_fit))
   }
 }
 

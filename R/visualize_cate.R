@@ -29,17 +29,28 @@ plot.cate <- function(cate_obj,
     msg = "'which_plot' must be in 1:3"
   )
 
+  model <- cate_obj$model
+
+  if (3 %in% which_plot) {
+    if (!("variance_estimates" %in% colnames(model))) {
+      cli::cli_alert_warning(
+        "Variance estimates missing from model output. 95% CI plot will not be produced."
+      )
+      which_plot <- setdiff(which_plot, 3)
+    }
+  }
+
   if (4 %in% which_plot) {
-    assertthat::assert_that(
-      "causalforest" %in% names(cate_obj),
-      msg = ("A causal forest fit must be included as an element of the CATE object")
-    )
+    if (!("causal_forest" %in% class(cate_obj$estimation_object))) {
+      cli::cli_alert_warning(
+        "Object of class 'causal_forest' required. Interpretation tree will not be produced."
+      )
+      which_plot <- setdiff(which_plot, 4)
+    }
   }
 
   show <- rep(FALSE, 5)
   show[which_plot] <- TRUE
-
-  model <- cate_obj$model
 
   if (ask) {
     devAskNewPage(TRUE)
@@ -89,7 +100,7 @@ plot.cate <- function(cate_obj,
   if (show[4]) {
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
     feat <- model.matrix(fm, cate_obj$model)
-    blpList <- grf::best_linear_projection(cate_obj$causalforest, A = feat)
+    blpList <- grf::best_linear_projection(cate_obj$estimation_object, A = feat)
 
     blps <- jtools::plot_summs(blpList,
                                point.shape = FALSE)
@@ -114,9 +125,9 @@ plot.cate <- function(cate_obj,
       ggplot2::xlab("") +
       ggplot2::ylab("") +
       ggplot2::theme(axis.text.y = ggplot2::element_blank())
-  }
 
-  print(p)
+    print(p)
+  }
 
   if (show[5]) {
     covariate_col <- cate_obj$covariate_col
