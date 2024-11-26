@@ -20,13 +20,13 @@ generate_tau(named_args, ...)
 \value{
 A list with the following elements:
 \itemize{
-\item \code{tau_hat}: Predicted conditional average treatment effect for each observation
+\item \code{tau_hat}: predicted conditional average treatment effect for each observation
 \item \code{variance_estimates}: variance estimate for each tau_hat (not available when
 \code{estimation_method} set to "xlearner" or \code{aggregation_method} set to "ensembleforest)
 \item \code{var_importance}: TBD
-\item \code{causalforest_obj}: Trained causal forest object from
-\link[grf:causal_forest]{grf::causal_forest} (If \code{estimation_method} is set to "causalforest"
-and \code{incl_cfobject} is TRUE)
+\item \code{fit_object}: object from \link[grf:causal_forest]{grf::causal_forest},
+\link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
+to the \code{estimation_method} selected.
 }
 }
 \description{

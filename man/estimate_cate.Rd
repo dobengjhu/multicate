@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimate_cate.R
 \name{estimate_cate}
 \alias{estimate_cate}
-\title{Estimate Heterogeneous Treatment Effects Across Multiple Randomized Control Trials}
+\title{Estimate Heterogeneous Treatment Effects Across Multiple Studies}
 \usage{
 estimate_cate(
   trial_tbl,
@@ -13,7 +13,6 @@ estimate_cate(
   outcome_col,
   covariate_col = NULL,
   drop_col = NULL,
-  incl_cfobject = TRUE,
   ...
 )
 }
@@ -47,9 +46,6 @@ model covariates. Defaults to NULL.}
 \item{drop_col}{character vector. Name(s) of columns in \code{trial_tbl} to be excluded from
 model covariates. Defaults to NULL.}
 
-\item{incl_cfobject}{logical. When TRUE, if \code{estimation_method} is "causalforest" the causal
-forest object is saved and returned. Defaults to TRUE.}
-
 \item{...}{Arguments to be passed to \code{estimation_method} and/or \code{aggregation_method}. Note the
 following exceptions:
 \itemize{
@@ -82,8 +78,9 @@ An object of class "cate" is a list containing the following elements:
 \item \code{treatment_col}: name of treatment column
 \item \code{outcome_col}: name of outcome column
 \item \code{covariate_col}: name(s) of covariate columns
-\item \code{causalforest}: Trained causal forest object from \link[grf:causal_forest]{causal_forest} (If
-\code{estimation_method} is set to "causalforest" and \code{incl_cfobject} is TRUE)
+\item \code{estimation_object}: object from \link[grf:causal_forest]{grf::causal_forest},
+\link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
+to the \code{estimation_method} selected.
 }
 }
 \description{

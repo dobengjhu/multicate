@@ -33,5 +33,6 @@ fit_ensemble_forest <- function(aug_data,
 
   return(list(tau_hat = fit$predictions[which(aug_data$S == aug_data$model_study)],
               variance_estimates = NULL,
-              var_importance = var_import))
+              var_importance = var_import,
+              fit_object = fit))
 }
