@@ -102,7 +102,6 @@ estimate_cate <- function(trial_tbl,
                           drop_col = NULL,
                           ...
                           ) {
-
   # assertions on methods
   estimation_method <- match.arg(estimation_method)
   aggregation_method <- match.arg(aggregation_method)
