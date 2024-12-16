@@ -2,7 +2,6 @@
 
 S3method(generate_aug_tau,causalforest_args)
 S3method(generate_aug_tau,slearner_args)
-S3method(generate_aug_tau,xlearner_args)
 S3method(generate_tau,ensembleforest_args)
 S3method(generate_tau,studyindicator_args)
 S3method(plot,cate)

@@ -6,7 +6,7 @@
 \usage{
 estimate_cate(
   trial_tbl,
-  estimation_method = c("slearner", "xlearner", "causalforest"),
+  estimation_method = c("slearner", "causalforest"),
   aggregation_method = c("studyindicator", "ensembleforest"),
   study_col,
   treatment_col,
@@ -23,7 +23,7 @@ only two treatments can be considered and treatment must be coded as 0/1 (numeri
 
 \item{estimation_method}{string. Single-study methods for estimating CATE (tau) for each
 observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
-"xlearner", and "causalforest".}
+and "causalforest".}
 
 \item{aggregation_method}{string. Method for aggregating results across studies Available methods
 are:
@@ -71,16 +71,16 @@ An object of class "cate" is a list containing the following elements:
 \itemize{
 \item \code{tau_hat}: conditional average treatment effect for each observation
 \item \code{variance_estimates}: variance estimate for each tau_hat (not available when
-\code{estimation_method} set to "xlearner" or \code{aggregation_method} set to "ensembleforest)
+\code{aggregation_method} set to "ensembleforest)
 }
-\item \code{var_importance}: TBD
+\item \code{var_importance}: a measure of how involved each variable was in creating the forest
+(see grf and ranger documentation for more details on calculation)
 \item \code{study_col}: name of study ID column
 \item \code{treatment_col}: name of treatment column
 \item \code{outcome_col}: name of outcome column
 \item \code{covariate_col}: name(s) of covariate columns
-\item \code{estimation_object}: object from \link[grf:causal_forest]{grf::causal_forest},
-\link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
-to the \code{estimation_method} selected.
+\item \code{estimation_object}: object from \link[grf:causal_forest]{grf::causal_forest}
+or \link[dbarts:bart]{dbarts::bart}, according to the \code{estimation_method} selected.
 }
 }
 \description{
