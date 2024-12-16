@@ -17,8 +17,38 @@ tbl. Note that only two treatments can be considered and treatment must be coded
 \item{alpha}{numeric. Significance level for confidence intervals. Defaults to 0.05 for 95\% CIs.}
 }
 \value{
-A list
+A tbl including all columns and data from \code{newdata_tbl}, with additional columns
+including a mean predicted CATE and associatied 100(1 - \eqn{\alpha})\% prediction interval.
 }
 \description{
-Predict Heterogeneous Treatment Effects Based on Estimated CATEs
+\code{predict_cate} is used to produce a prediction of the conditional average treatment effect (CATE)
+based on a model built on multiple studies.
+}
+\details{
+The predict function uses estimated CATEs from multiple studies (objects resulting from
+\link{estimate_cate}) to form prediction intervals for CATEs in a new, target setting (e.g., a
+group of patients in an electronic health record system). This function leverages prediction
+interval techniques from meta-analysis by estimating the within-study and between-study variance
+of the CATEs for all covariate profiles (X) of interest in the target setting. The prediction
+interval for the CATE for covariate profile X in the target setting is of the form:
+\deqn{\hat{\tau}(\mathbf{X}^*) \pm \sqrt{var_{within} + var_{between}}}
+Where \eqn{\hat{\tau}(\mathbf{X}^*)} is the inverse variance-weighted average of the
+\eqn{\hat{\tau}(\mathbf{X}^*)} across studies, \eqn{t_{K-2}} is the t-statistic with K-2 degrees
+of freedom, var_within is the average of the variances of each \eqn{\hat{\tau}(\mathbf{X}^*)},
+and var_between is the variance of the set of \eqn{\hat{\tau}(\mathbf{X}^*)}. For more details,
+see Brantner et al., (2024).
+
+The predict function can only be run on \code{cate} objects with variance estimates available. As
+long as that criteria is met, any method used to estimate the CATEs across multiple studies can
+then be used to create prediction intervals using this approach.
+
+The \code{newdata_tbl} can consist of any set of profiles for which the researcher would like to
+create prediction intervals. The assumption with this approach is that the profiles in the target
+setting can be found within the covariate distribution of at least one of the studies used to
+estimate the CATE (i.e., positivity). CATE prediction intervals will be constructed separately
+for each covariate profile, represented by a row in the newdata_tbl.
+}
+\references{
+Brantner CL, Nguyen TQ, Parikh H, Zhao C, Hong H, Stuart EA. Precision mental health: Predicting
+heterogeneous treatment effects for depression through data integration. \emph{Arxiv}.
 }

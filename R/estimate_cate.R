@@ -4,6 +4,46 @@
 #' `estimate_cate` is used to estimate conditional average treatment effect (CATE) from multiple
 #' studies.
 #'
+#' @details
+#' The resulting CATEs are of the form: E(Y(1) - Y(0)|X), where X includes covariates included in
+#' the `covariate_col` argument. For a continuous outcome, this is the difference in the means
+#' between treatment groups for a particular covariate profile X. For a binary outcome, this
+#' translates to an estimate of the risk difference between the two treatment groups for X.
+#'
+#' This function relies on two methods: an estimation method and an aggregation method. Estimation
+#' methods include an S-learner with BART (Hill, 2011; Künzel, 2019), and a causal forest (Athey et
+#' al., 2019). Details on each approach can be found in the respective papers, as well as the R
+#' packages `dbarts` and `grf`. Aggregation methods include the pooling with trial indicator method
+#' and the ensemble forest (Brantner et al., 2024). All methods included in this package performed
+#' well in simulations across various settings of cross-study heterogeneity and functional forms of
+#' the CATE (Brantner et al., 2024).
+#'
+#' Variance estimates are available for all estimation methods when the pooling with trial indicator
+#' aggregation method is used. Variance estimates are not yet available for the ensemble forest.
+#'
+#' Data from the studies being combined can come from randomized clinical trials, observational
+#' studies, or both. The estimation methods can inherently handle confounding in treatment
+#' assignment, and users can allow the methods to automatically address confounding.
+#' If desired, propensity scores can be separately estimated and included in one of two ways: as a
+#' covariate for S-learner with BART, or as the `W.hat` argument in the causal forest (see `grf`
+#' documentation).
+#'
+#' @references
+#' Hill, J. L. (2011). Bayesian Nonparametric Modeling for Causal Inference.
+#' *Journal of Computational and Graphical Statistics, 20*(1), 217–240.
+#' [DOI:10.1198/jcgs.2010.08162](http://www.tandfonline.com/doi/abs/10.1198/jcgs.2010.08162)
+#'
+#' Künzel, S. R., Sekhon, J. S., Bickel, P. J., & Yu, B. (2019). Metalearners for estimating
+#' heterogeneous treatment effects using machine learning.
+#' *Proceedings of the National Academy of Sciences, 116*(10), 4156–4165.
+#'
+#' Athey, S., Tibshirani, J., & Wager, S. (2019). Generalized random forests.
+#' *The Annals of Statistics, 47*(2), 1148–1178.
+#'
+#' Brantner, C. L., Nguyen, T. Q., Tang, T., Zhao, C., Hong, H., & Stuart, E. A. (2024).
+#' Comparison of methods that combine multiple randomized trials to estimate heterogeneous treatment
+#' effects. *Statistics in Medicine.*
+#'
 #' @param trial_tbl tbl. A tbl containing columns for treatment, outcome, study ID, and any
 #'  additional covariates of interest. All study data must be included in single tbl. Note that
 #'  only two treatments can be considered and treatment must be coded as 0/1 (numeric).
@@ -62,16 +102,34 @@ estimate_cate <- function(trial_tbl,
                           drop_col = NULL,
                           ...
                           ) {
+
   # assertions on methods
   estimation_method <- match.arg(estimation_method)
   aggregation_method <- match.arg(aggregation_method)
 
   # assertions on trial_tbl
-  # TODO: Assert study, treatment, and outcome cols are not in covariate_col or drop_col
-  # TODO: Assert that treatment variable is 0/1
-  # TODO: Assert that treatment variable doesn't have more than 2 levels
-  # TODO: Assert outcome is numeric
-  # TODO: Assert incl_cfobject is TRUE or FALSE
+  assert_column_names_exist(trial_tbl, study_col, treatment_col, outcome_col)
+
+  if (!is.null(covariate_col)) {
+    assert_column_names_exist(trial_tbl, covariate_col)
+  }
+
+  if (!is.null(drop_col)) {
+    assert_column_names_exist(trial_tbl, drop_col)
+  }
+
+  assertthat::assert_that(
+    !(any(c(study_col, treatment_col, outcome_col) %in% c(covariate_col, drop_col))),
+    msg = "`covariate_col` and `drop_col` cannot include the study, treatment, and/or outcome columns."
+  )
+
+  assertthat::assert_that(
+    length(setdiff(unique(trial_tbl[[treatment_col]]), c(0,1))) == 0,
+    msg = "Treatment values must be 0, 1, or NA."
+  )
+
+  assert_column_class(trial_tbl, outcome_col, "numeric")
+
 
   if (is.null(covariate_col)) {
     exclude_col <- c(study_col, treatment_col, outcome_col, drop_col)
