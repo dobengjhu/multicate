@@ -108,27 +108,11 @@ estimate_cate <- function(trial_tbl,
   aggregation_method <- match.arg(aggregation_method)
 
   # assertions on trial_tbl
-  assert_column_names_exist(trial_tbl, study_col, treatment_col, outcome_col)
-
-  if (!is.null(covariate_col)) {
-    assert_column_names_exist(trial_tbl, covariate_col)
-  }
-
-  if (!is.null(drop_col)) {
-    assert_column_names_exist(trial_tbl, drop_col)
-  }
-
-  assertthat::assert_that(
-    !(any(c(study_col, treatment_col, outcome_col) %in% c(covariate_col, drop_col))),
-    msg = "`covariate_col` and `drop_col` cannot include the study, treatment, and/or outcome columns."
-  )
-
-  assertthat::assert_that(
-    length(setdiff(unique(trial_tbl[[treatment_col]]), c(0,1))) == 0,
-    msg = "Treatment values must be 0, 1, or NA."
-  )
-
-  assert_column_class(trial_tbl, outcome_col, "numeric")
+  # TODO: Assert site, treatment, and outcome cols are not in covariate_col or drop_col
+  # TODO: Assert that treatment variable is 0/1
+  # TODO: Assert that treatment variable doesn't have more than 2 levels
+  # TODO: Assert outcome is numeric
+  # TODO: Assert incl_cfobject is TRUE or FALSE
 
 
   if (is.null(covariate_col)) {
