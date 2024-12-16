@@ -47,7 +47,6 @@
 predict.cate <- function(cate_obj,
                          newdata_tbl,
                          alpha = 0.05) {
-  browser()
   assertthat::assert_that(
     cate_obj$estimation_method %in% c("causalforest", "slearner"),
     msg = "Estimation method must be 'causalforest' or 'slearner'."
@@ -62,10 +61,9 @@ predict.cate <- function(cate_obj,
   S <- rlang::sym(cate_obj$study_col)
   W <- rlang::sym(cate_obj$treatment_col)
   Y <- rlang::sym(cate_obj$outcome)
-  covariates <- rlang::syms(cate_obj$covariate_col)
 
   required_colnames <- model %>%
-    dplyr::select(!!W, !!!covariates) %>%
+    dplyr::select(!!W, !!!rlang::syms(cate_obj$covariate_col)) %>%
     colnames()
 
   assertthat::assert_that(
@@ -89,7 +87,7 @@ predict.cate <- function(cate_obj,
       if (cate_obj$estimation_method == "causalforest") {
         dplyr::select(., !!S, dplyr::all_of(cate_obj$covariate_col))
       } else {
-        dplyr::select(., !!W, !!S, dplyr::all_of(covariate_col))
+        dplyr::select(., !!W, !!S, dplyr::all_of(cate_obj$covariate_col))
       }
     } %>%
     fastDummies::dummy_cols(select_columns = as.character(S),
