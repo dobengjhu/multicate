@@ -14,7 +14,7 @@
 predict.cate <- function(cate_obj,
                          newdata_tbl,
                          alpha = 0.05) {
-
+  browser()
   assertthat::assert_that(
     cate_obj$estimation_method %in% c("causalforest", "slearner"),
     msg = "Estimation method must be 'causalforest' or 'slearner'."
@@ -54,7 +54,7 @@ predict.cate <- function(cate_obj,
   newfeat <- newdata %>%
     {
       if (cate_obj$estimation_method == "causalforest") {
-        dplyr::select(., !!S, dplyr::all_of(covariate_col))
+        dplyr::select(., !!S, dplyr::all_of(cate_obj$covariate_col))
       } else {
         dplyr::select(., !!W, !!S, dplyr::all_of(covariate_col))
       }
