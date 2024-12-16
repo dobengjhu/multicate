@@ -6,11 +6,11 @@
 #' @return A list with the following elements:
 #'  - `tau_hat`: predicted conditional average treatment effect for each observation
 #'  - `variance_estimates`: variance estimate for each tau_hat (not available when
-#'    `estimation_method` set to "xlearner" or `aggregation_method` set to "ensembleforest)
-#'  - `var_importance`: TBD
-#'  - `fit_object`: object from \link[grf:causal_forest]{grf::causal_forest},
-#'  \link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
-#'  to the `estimation_method` selected.
+#'    `aggregation_method` set to "ensembleforest)
+#'  - `var_importance`: a measure of how involved each variable was in creating the forest
+#'  (see grf and ranger documentation for more details on calculation)
+#'  - `fit_object`: object from \link[grf:causal_forest]{grf::causal_forest} or
+#'  \link[dbarts:bart]{dbarts::bart}, according to the `estimation_method` selected.
 generate_tau <- function(named_args,
                          ...) {
   UseMethod("generate_tau")
@@ -44,20 +44,6 @@ generate_tau.studyindicator_args <- function(named_args,
                                              estimate.variance = TRUE)$variance.estimates,
                 var_importance = var_import,
                 fit_object = tau))
-  } else if (named_args$estimation_method == "xlearner") {
-    extra_args <- list(...)
-    relevant_args <- extra_args[names(extra_args) %in% names(formals(causalToolbox::X_RF))]
-    xrf_fit <- do.call(causalToolbox::X_RF,
-                       c(list(feat = tau_args$feature_tbl,
-                              tr = tau_args$treatment_vec,
-                              yobs = tau_args$outcome_vec),
-                         relevant_args))
-
-    return(list(tau_hat = causalToolbox::EstimateCate(xrf_fit,
-                                                      tau_args$feature_tbl),
-                variance_estimates = NULL,
-                var_importance = NULL,
-                fit_object = xrf_fit))
   } else if (named_args$estimation_method == "slearner") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]

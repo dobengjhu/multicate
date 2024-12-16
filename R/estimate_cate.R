@@ -9,7 +9,7 @@
 #'  only two treatments can be considered and treatment must be coded as 0/1 (numeric).
 #' @param estimation_method string. Single-study methods for estimating CATE (tau) for each
 #'  observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
-#'  "xlearner", and "causalforest".
+#'  and "causalforest".
 #' @param aggregation_method string. Method for aggregating results across studies Available methods
 #'  are:
 #'    - "studyindicator": Pool all data together but keep study ID as an indicator variable and
@@ -39,21 +39,21 @@
 #'  - `model`: `trial_tbl` with additional columns
 #'    - `tau_hat`: conditional average treatment effect for each observation
 #'    - `variance_estimates`: variance estimate for each tau_hat (not available when
-#'    `estimation_method` set to "xlearner" or `aggregation_method` set to "ensembleforest)
-#'  - `var_importance`: TBD
+#'    `aggregation_method` set to "ensembleforest)
+#'  - `var_importance`: a measure of how involved each variable was in creating the forest
+#'  (see grf and ranger documentation for more details on calculation)
 #'  - `study_col`: name of study ID column
 #'  - `treatment_col`: name of treatment column
 #'  - `outcome_col`: name of outcome column
 #'  - `covariate_col`: name(s) of covariate columns
-#'  - `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest},
-#'  \link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
-#'  to the `estimation_method` selected.
+#'  - `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest}
+#'  or \link[dbarts:bart]{dbarts::bart}, according to the `estimation_method` selected.
 #'
 #' @export
 #'
 #' @examples
 estimate_cate <- function(trial_tbl,
-                          estimation_method = c("slearner", "xlearner", "causalforest"),
+                          estimation_method = c("slearner", "causalforest"),
                           aggregation_method = c("studyindicator", "ensembleforest"),
                           study_col,
                           treatment_col,
