@@ -112,8 +112,8 @@ covariate for S-learner with BART, or as the \code{W.hat} argument in the causal
 documentation).
 }
 \references{
-Hill, J. L. (2011). Bayesian Nonparametric Modeling for Causal Inference. \emph{Journal of
-Computational and Graphical Statistics, 20}(1), 217–240.
+Hill, J. L. (2011). Bayesian Nonparametric Modeling for Causal Inference.
+\emph{Journal of Computational and Graphical Statistics, 20}(1), 217–240.
 \href{http://www.tandfonline.com/doi/abs/10.1198/jcgs.2010.08162}{DOI:10.1198/jcgs.2010.08162}
 
 Künzel, S. R., Sekhon, J. S., Bickel, P. J., & Yu, B. (2019). Metalearners for estimating
