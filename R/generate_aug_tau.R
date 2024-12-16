@@ -9,7 +9,7 @@
 #' using the selected `estimation_method` trained on each study in turn. As a result, every
 #' observation will have a separate row with a tau_hat prediction based on models trained on each
 #' study (e.g., if the original data includes k studies, each with n observations, then the returned
-#' tbl will have nk oservations)
+#' tbl will have nk observations)
 generate_aug_tau <- function(named_args,
                              study_val,
                              ...) {
