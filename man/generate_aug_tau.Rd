@@ -3,15 +3,12 @@
 \name{generate_aug_tau}
 \alias{generate_aug_tau}
 \alias{generate_aug_tau.causalforest_args}
-\alias{generate_aug_tau.xlearner_args}
 \alias{generate_aug_tau.slearner_args}
 \title{Generate Augmented Dataset Based on Selected Estimation Method}
 \usage{
 generate_aug_tau(named_args, study_val, ...)
 
 \method{generate_aug_tau}{causalforest_args}(named_args, study_val, ...)
-
-\method{generate_aug_tau}{xlearner_args}(named_args, study_val, ...)
 
 \method{generate_aug_tau}{slearner_args}(named_args, study_val, ...)
 }
@@ -28,7 +25,7 @@ A tbl with additional column \code{tau_hat} predicted for each observation based
 using the selected \code{estimation_method} trained on each study in turn. As a result, every
 observation will have a separate row with a tau_hat prediction based on models trained on each
 study (e.g., if the original data includes k studies, each with n observations, then the returned
-tbl will have nk oservations)
+tbl will have nk observations)
 }
 \description{
 Generate Augmented Dataset Based on Selected Estimation Method

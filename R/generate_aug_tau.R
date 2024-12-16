@@ -53,33 +53,6 @@ generate_aug_tau.causalforest_args <- function(named_args,
 
 #' @export
 #' @rdname generate_aug_tau
-generate_aug_tau.xlearner_args <- function(named_args,
-                                           study_val,
-                                           ...) {
-  primary_study_args <- named_args
-  primary_study_args$trial_tbl <- primary_study_args$trial_tbl %>%
-    dplyr::filter(!!rlang::sym(named_args[["study_col"]]) == study_val)
-
-  primary_tau_args <- prepare_cate_data(primary_study_args,
-                                        "ensembleforest")
-  alldata_tau_args <- prepare_cate_data(named_args,
-                                        "ensembleforest")
-
-  extra_args <- list(...)
-  relevant_args <- extra_args[names(extra_args) %in% names(formals(causalToolbox::X_RF))]
-  xrf_fit <- do.call(causalToolbox::X_RF,
-                     c(list(feat = primary_tau_args$feature_tbl,
-                            tr = primary_tau_args$treatment_vec,
-                            yobs = primary_tau_args$outcome_vec),
-                       relevant_args))
-  named_args$trial_tbl %>%
-    dplyr::mutate(tau_hat = causalToolbox::EstimateCate(xrf_fit,
-                                                        alldata_tau_args$feature_tbl),
-                  model_study = as.factor(study_val))
-}
-
-#' @export
-#' @rdname generate_aug_tau
 generate_aug_tau.slearner_args <- function(named_args,
                                            study_val,
                                            ...) {
