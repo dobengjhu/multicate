@@ -22,11 +22,11 @@ A list with the following elements:
 \itemize{
 \item \code{tau_hat}: predicted conditional average treatment effect for each observation
 \item \code{variance_estimates}: variance estimate for each tau_hat (not available when
-\code{estimation_method} set to "xlearner" or \code{aggregation_method} set to "ensembleforest)
-\item \code{var_importance}: TBD
-\item \code{fit_object}: object from \link[grf:causal_forest]{grf::causal_forest},
-\link[causalToolbox:X_RF]{causalToolbox::X_RF}, or \link[dbarts:bart]{dbarts::bart}, according
-to the \code{estimation_method} selected.
+\code{aggregation_method} set to "ensembleforest)
+\item \code{var_importance}: a measure of how involved each variable was in creating the forest
+(see grf and ranger documentation for more details on calculation)
+\item \code{fit_object}: object from \link[grf:causal_forest]{grf::causal_forest} or
+\link[dbarts:bart]{dbarts::bart}, according to the \code{estimation_method} selected.
 }
 }
 \description{

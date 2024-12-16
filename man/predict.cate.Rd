@@ -18,7 +18,7 @@ tbl. Note that only two treatments can be considered and treatment must be coded
 }
 \value{
 A tbl including all columns and data from \code{newdata_tbl}, with additional columns
-including a mean predicted CATE and associatied 100(1 - \eqn{\alpha})\% prediction interval.
+including a mean predicted CATE and associated 100(1 - \eqn{\alpha})\% prediction interval.
 }
 \description{
 \code{predict_cate} is used to produce a prediction of the conditional average treatment effect (CATE)
