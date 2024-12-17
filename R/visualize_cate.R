@@ -8,7 +8,7 @@
 #' interpretation tree.
 #'
 #' @importFrom grDevices devAskNewPage
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix#'
 #' @param x list. An object resulting from \link{estimate_cate}.
 #' @param which_plot numeric vector. A vector indicating which plots should be generated.
 #' @param ask logical. When TRUE, the user is asked before each plot, see
@@ -99,7 +99,6 @@ plot.cate <- function(x,
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
     feat <- model.matrix(fm, x$model)
     blpList <- grf::best_linear_projection(x$estimation_object, A = feat)
-
     blps <- jtools::plot_summs(blpList,
                                point.shape = FALSE)
     dfg <- blps$data
