@@ -4,10 +4,10 @@
 #' Five plots (selectable by `which_plot`) currently available: a histogram of estimated conditional
 #' average treatment effects (CATEs), a boxplot of CATEs stratified by study membership, a plot of
 #' 95% confidence intervals for all CATEs sorted in order to CATE estimate value, a best linear
-#' projection, and an interpretation tree (only available when `estimation_method` is set to
-#' "causalforest").
+#' projection (only available when `estimation_method` is set to "causalforest"), and an
+#' interpretation tree.
 #'
-#' @param cate_obj `cate` list. An object resulting from \link{estimate_cate}.
+#' @param object list. An object resulting from \link{estimate_cate}.
 #' @param which_plot numeric vector. A vector indicating which plots should be generated.
 #' @param ask logical. When TRUE, the user is asked before each plot, see
 #'  \link[graphics:par]{par(ask = .)}.
@@ -15,11 +15,11 @@
 #' @export
 #'
 #' @examples
-plot.cate <- function(cate_obj,
+plot.cate <- function(object,
                       which_plot = 1:5,
                       ask = TRUE) {
   assertthat::assert_that(
-    inherits(cate_obj, "cate"),
+    inherits(object, "cate"),
     msg = "use only with \"cate\" objects"
   )
 
@@ -29,8 +29,8 @@ plot.cate <- function(cate_obj,
     msg = "'which_plot' must be in 1:3"
   )
 
-  model <- cate_obj$model
-  covariate_col <- cate_obj$covariate_col
+  model <- object$model
+  covariate_col <- object$covariate_col
 
   if (3 %in% which_plot) {
     if (!("variance_estimates" %in% colnames(model))) {
@@ -42,9 +42,9 @@ plot.cate <- function(cate_obj,
   }
 
   if (4 %in% which_plot) {
-    if (!("causal_forest" %in% class(cate_obj$estimation_object))) {
+    if (!("causal_forest" %in% class(object$estimation_object))) {
       cli::cli_alert_warning(
-        "Object of class 'causal_forest' required to produce best linear projection figure."
+        "Object of class 'causal_forest' required for best linear projection figure."
       )
       which_plot <- setdiff(which_plot, 4)
     }
@@ -66,7 +66,7 @@ plot.cate <- function(cate_obj,
   }
 
   if (show[2]) {
-    study_col <- cate_obj$study_col
+    study_col <- object$study_col
     p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(study_col), y = tau_hat)) +
       ggplot2::geom_boxplot() +
       ggplot2::xlab("Study ID") +
@@ -100,8 +100,8 @@ plot.cate <- function(cate_obj,
 
   if (show[4]) {
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
-    feat <- model.matrix(fm, cate_obj$model)
-    blpList <- grf::best_linear_projection(cate_obj$estimation_object, A = feat)
+    feat <- model.matrix(fm, object$model)
+    blpList <- grf::best_linear_projection(object$estimation_object, A = feat)
 
     blps <- jtools::plot_summs(blpList,
                                point.shape = FALSE)
@@ -142,7 +142,7 @@ plot.cate <- function(cate_obj,
 
 #' Plot Variable Treatment Effect
 #'
-#' @param cate_obj list. An object resulting from \link{estimate_cate}.
+#' @param object list. An object resulting from \link{estimate_cate}.
 #' @param covariate_name string. Name of a covariate included in dataset used to estimate tau_hat.
 #'
 #' @export
@@ -152,9 +152,9 @@ plot.cate <- function(cate_obj,
 #' against the value of tau_hat for the variable. This is what the findings mean...
 #'
 #' @examples
-plot_vteffect <- function(cate_obj, covariate_name) {
-  model <- cate_obj$model
-  study_col <- cate_obj$study_col
+plot_vteffect <- function(object, covariate_name) {
+  model <- object$model
+  study_col <- object$study_col
   ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
                                         y = tau_hat,
                                         color = !!rlang::sym(study_col))) +
@@ -165,7 +165,7 @@ plot_vteffect <- function(cate_obj, covariate_name) {
 
 #' Plot Best Linear Projection
 #'
-#' @param cate_obj list. An object resulting from \link{estimate_cate}.
+#' @param object list. An object resulting from \link{estimate_cate}.
 #'
 #' @export
 #'
@@ -173,10 +173,10 @@ plot_vteffect <- function(cate_obj, covariate_name) {
 #' Additional details...
 #'
 #' @examples
-plot_blp <- function(cate_obj) {
-  fm <- as.formula(paste("~ 1 + ", paste(cate_obj$covariate_col, collapse = "+")))
-  feat <- model.matrix(fm, cate_obj$model)
-  blpList <- grf::best_linear_projection(cate_obj$causalforest, A = feat)
+plot_blp <- function(object) {
+  fm <- as.formula(paste("~ 1 + ", paste(object$covariate_col, collapse = "+")))
+  feat <- model.matrix(fm, object$model)
+  blpList <- grf::best_linear_projection(object$causalforest, A = feat)
 
   blps <- jtools::plot_summs(blpList,
                              point.shape = FALSE)
