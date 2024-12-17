@@ -30,6 +30,7 @@ plot.cate <- function(cate_obj,
   )
 
   model <- cate_obj$model
+  covariate_col <- cate_obj$covariate_col
 
   if (3 %in% which_plot) {
     if (!("variance_estimates" %in% colnames(model))) {
@@ -43,7 +44,7 @@ plot.cate <- function(cate_obj,
   if (4 %in% which_plot) {
     if (!("causal_forest" %in% class(cate_obj$estimation_object))) {
       cli::cli_alert_warning(
-        "Object of class 'causal_forest' required. Interpretation tree will not be produced."
+        "Object of class 'causal_forest' required to produce best linear projection figure."
       )
       which_plot <- setdiff(which_plot, 4)
     }
@@ -130,7 +131,6 @@ plot.cate <- function(cate_obj,
   }
 
   if (show[5]) {
-    covariate_col <- cate_obj$covariate_col
     fml <- as.formula(paste("tau_hat ~ ", paste(covariate_col, collapse="+")))
     int_tree <- rpart::rpart(fml, data = model)
     int_tree_pruned <- rpart::prune(int_tree,
@@ -174,7 +174,7 @@ plot_vteffect <- function(cate_obj, covariate_name) {
 #'
 #' @examples
 plot_blp <- function(cate_obj) {
-  fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
+  fm <- as.formula(paste("~ 1 + ", paste(cate_obj$covariate_col, collapse = "+")))
   feat <- model.matrix(fm, cate_obj$model)
   blpList <- grf::best_linear_projection(cate_obj$causalforest, A = feat)
 
