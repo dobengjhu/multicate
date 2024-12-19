@@ -65,28 +65,28 @@
 #'  model covariates. Defaults to NULL.
 #' @param ... Arguments to be passed to `estimation_method` and/or `aggregation_method`. Note the
 #'  following exceptions:
-#'    - `estimation_method` = "slearner"
-#'      - \link[dbarts:bart]{dbarts::bart()} argument `keeptrees` set to TRUE
-#'      - \link[dbarts:bart]{dbarts::bart()} argument `verbose` set to FALSE when `aggregation_method` is
+#'    * `estimation_method` = "slearner"
+#'      * \link[dbarts:bart]{dbarts::bart()} argument `keeptrees` set to TRUE
+#'      * \link[dbarts:bart]{dbarts::bart()} argument `verbose` set to FALSE when `aggregation_method` is
 #'      "ensembleforest"
-#'    - `aggregation_method` = "ensembleforest"
-#'      - \link[ranger:ranger]{ranger::ranger()} argument `importance` set to "impurity"
-#'      - \link[ranger:ranger]{ranger::ranger()} argument `keep.inbag` set to TRUE
+#'    * `aggregation_method` = "ensembleforest"
+#'      * \link[ranger:ranger]{ranger::ranger()} argument `importance` set to "impurity"
+#'      * \link[ranger:ranger]{ranger::ranger()} argument `keep.inbag` set to TRUE
 #'
 #' @return An object of class "cate" is a list containing the following elements:
-#'  - `estimation_method`: the type of estimation method used
-#'  - `aggregation_method`: the type of aggregation method used
-#'  - `model`: `trial_tbl` with additional columns
-#'    - `tau_hat`: conditional average treatment effect for each observation
-#'    - `variance_estimates`: variance estimate for each tau_hat (not available when
+#'  * `estimation_method`: the type of estimation method used
+#'  * `aggregation_method`: the type of aggregation method used
+#'  * `model`: `trial_tbl` with additional columns
+#'    * `tau_hat`: conditional average treatment effect for each observation
+#'    * `variance_estimates`: variance estimate for each tau_hat (not available when
 #'    `aggregation_method` set to "ensembleforest)
-#'  - `var_importance`: a measure of how involved each variable was in creating the forest
+#'  * `var_importance`: a measure of how involved each variable was in creating the forest
 #'  (see grf and ranger documentation for more details on calculation)
-#'  - `study_col`: name of study ID column
-#'  - `treatment_col`: name of treatment column
-#'  - `outcome_col`: name of outcome column
-#'  - `covariate_col`: name(s) of covariate columns
-#'  - `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest}
+#'  * `study_col`: name of study ID column
+#'  * `treatment_col`: name of treatment column
+#'  * `outcome_col`: name of outcome column
+#'  * `covariate_col`: name(s) of covariate columns
+#'  * `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest}
 #'  or \link[dbarts:bart]{dbarts::bart}, according to the `estimation_method` selected.
 #'
 #' @export

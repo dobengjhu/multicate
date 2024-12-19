@@ -4,10 +4,10 @@
 \alias{plot_blp}
 \title{Plot Best Linear Projection}
 \usage{
-plot_blp(cate_obj)
+plot_blp(object)
 }
 \arguments{
-\item{cate_obj}{list. An object resulting from \link{estimate_cate}.}
+\item{object}{list. An object resulting from \link{estimate_cate}.}
 }
 \description{
 Plot Best Linear Projection
