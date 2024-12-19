@@ -46,7 +46,7 @@ summary.cate <- function(object) {
 
 <<<<<<< HEAD
   if (object$aggregation_method == "ensembleforest") {
-    # insert assert_column_names_exist()
+    assert_column_names_exist(object$model, tauhat_column)
   }
 
   summary_list <- list()
