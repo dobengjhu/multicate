@@ -122,6 +122,8 @@ estimate_cate <- function(trial_tbl,
     msg = "`covariate_col` and `drop_col` cannot include the study, treatment, and/or outcome columns."
   )
 
+  assert_column_class(trial_tbl, treatment_col, c("numeric", "integer"))
+
   assertthat::assert_that(
     length(setdiff(unique(trial_tbl[[treatment_col]]), c(0,1))) == 0,
     msg = "Treatment values must be 0, 1, or NA."

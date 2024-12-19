@@ -28,7 +28,7 @@ generate_tau.studyindicator_args <- function(named_args,
   if (named_args$estimation_method == "causalforest") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(grf::causal_forest))]
-    tau <- do.call(grf::causal_forest,
+    cf_fit <- do.call(grf::causal_forest,
                    c(list(X = tau_args$feature_tbl,
                           W = tau_args$treatment_vec,
                           Y = tau_args$outcome_vec),
@@ -36,14 +36,14 @@ generate_tau.studyindicator_args <- function(named_args,
 
     var_import <- tibble::tibble(
       variable = colnames(tau_args$feature_tbl),
-      importance = as.numeric(grf::variable_importance(tau)),
+      importance = as.numeric(grf::variable_importance(cf_fit)),
     )
 
-    return(list(tau_hat = as.numeric(tau$predictions),
-                variance_estimates = predict(tau,
+    return(list(tau_hat = as.numeric(cf_fit$predictions),
+                variance_estimates = predict(cf_fit,
                                              estimate.variance = TRUE)$variance.estimates,
                 var_importance = var_import,
-                fit_object = tau))
+                fit_object = cf_fit))
   } else if (named_args$estimation_method == "slearner") {
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]

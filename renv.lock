@@ -9,21 +9,6 @@
     ]
   },
   "Packages": {
-    "BART": {
-      "Package": "BART",
-      "Version": "2.9.9",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "nlme",
-        "parallel",
-        "survival",
-        "tools"
-      ],
-      "Hash": "d5097c1e819bb706de880fa3bf52a831"
-    },
     "DiceKriging": {
       "Package": "DiceKriging",
       "Version": "1.6.0",
@@ -33,17 +18,6 @@
         "methods"
       ],
       "Hash": "033765b87e28c58cb80809cc668a9623"
-    },
-    "GPfit": {
-      "Package": "GPfit",
-      "Version": "1.0-8",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "lattice",
-        "lhs"
-      ],
-      "Hash": "29a7dccade1fd037c8262c2a239775eb"
     },
     "MASS": {
       "Package": "MASS",
@@ -59,20 +33,6 @@
         "utils"
       ],
       "Hash": "0cafd6f0500e5deba33be22c46bf6055"
-    },
-    "Matching": {
-      "Package": "Matching",
-      "Version": "4.10-15",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "MASS",
-        "R",
-        "grDevices",
-        "graphics",
-        "stats"
-      ],
-      "Hash": "6a4449531f4d717bfe2f40c4b59c1a2e"
     },
     "Matrix": {
       "Package": "Matrix",
@@ -122,20 +82,6 @@
       ],
       "Hash": "6b868847b365672d6c1677b1608da9ed"
     },
-    "RcppArmadillo": {
-      "Package": "RcppArmadillo",
-      "Version": "14.2.0-1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "ce9c35ab9ea9c6ef4e27a08868cdb32b"
-    },
     "RcppEigen": {
       "Package": "RcppEigen",
       "Version": "0.3.4.0.2",
@@ -148,40 +94,6 @@
         "utils"
       ],
       "Hash": "4ac8e423216b8b70cb9653d1b3f71eb9"
-    },
-    "RcppThread": {
-      "Package": "RcppThread",
-      "Version": "2.1.7",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "496f1ac14c8eb1c560e07a96515eea76"
-    },
-    "Rforestry": {
-      "Package": "Rforestry",
-      "Version": "0.10.2",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "Rforestry-base",
-      "RemoteUsername": "muschellij2",
-      "RemoteSha": "c2284fd7c4559710d3b14c00242fc841c4c1f64b",
-      "RemoteSubdir": "R",
-      "Requirements": [
-        "Rcpp",
-        "RcppArmadillo",
-        "RcppThread",
-        "glmnet",
-        "grDevices",
-        "methods",
-        "onehot",
-        "pROC",
-        "parallel",
-        "visNetwork"
-      ],
-      "Hash": "6a07ff1d7a93cee22d7a19bfcb08732e"
     },
     "assertthat": {
       "Package": "assertthat",
@@ -308,36 +220,6 @@
         "utils"
       ],
       "Hash": "d7e13f49c19103ece9e58ad2d83a7354"
-    },
-    "causalToolbox": {
-      "Package": "causalToolbox",
-      "Version": "0.0.2.4",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "causalToolbox",
-      "RemoteUsername": "forestry-labs",
-      "RemoteSha": "75acc74ae689fddebe63a43597ff21f3ec233bd4",
-      "Requirements": [
-        "BART",
-        "MASS",
-        "Matching",
-        "R",
-        "Rcpp",
-        "Rforestry",
-        "dbarts",
-        "distances",
-        "doParallel",
-        "foreach",
-        "methods",
-        "parallel",
-        "plyr",
-        "quickmatch",
-        "rBayesianOptimization",
-        "ranger",
-        "stats"
-      ],
-      "Hash": "c449a47f1fd60b9337675926917f735b"
     },
     "cli": {
       "Package": "cli",
@@ -471,31 +353,6 @@
       ],
       "Hash": "33698c4b3127fc9f506654607fb73676"
     },
-    "distances": {
-      "Package": "distances",
-      "Version": "0.1.11",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "stats"
-      ],
-      "Hash": "7185f58fc06ba710171a4a24704cfa55"
-    },
-    "doParallel": {
-      "Package": "doParallel",
-      "Version": "1.0.17",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "foreach",
-        "iterators",
-        "parallel",
-        "utils"
-      ],
-      "Hash": "451e5edf411987991ab6a5410c45011f"
-    },
     "dplyr": {
       "Package": "dplyr",
       "Version": "1.1.4",
@@ -596,19 +453,6 @@
       ],
       "Hash": "1a0a9a3d5083d0d573c4214576f1e690"
     },
-    "foreach": {
-      "Package": "foreach",
-      "Version": "1.5.2",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "codetools",
-        "iterators",
-        "utils"
-      ],
-      "Hash": "618609b42c9406731ead03adf5379850"
-    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.5",
@@ -686,24 +530,6 @@
         "withr"
       ],
       "Hash": "44c6a2f8202d5b7e878ea274b1092426"
-    },
-    "glmnet": {
-      "Package": "glmnet",
-      "Version": "4.1-8",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "Rcpp",
-        "RcppEigen",
-        "foreach",
-        "methods",
-        "shape",
-        "survival",
-        "utils"
-      ],
-      "Hash": "eb6fc70e561aae41d5911a6726188f71"
     },
     "globals": {
       "Package": "globals",
@@ -787,21 +613,6 @@
       ],
       "Hash": "81d371a9cc60640e74e4ab6ac46dcedc"
     },
-    "htmlwidgets": {
-      "Package": "htmlwidgets",
-      "Version": "1.6.4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "grDevices",
-        "htmltools",
-        "jsonlite",
-        "knitr",
-        "rmarkdown",
-        "yaml"
-      ],
-      "Hash": "04291cc45198225444a397606810ac37"
-    },
     "isoband": {
       "Package": "isoband",
       "Version": "0.2.7",
@@ -812,17 +623,6 @@
         "utils"
       ],
       "Hash": "0080607b4a1a7b28979aecef976d8bc2"
-    },
-    "iterators": {
-      "Package": "iterators",
-      "Version": "1.0.14",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "utils"
-      ],
-      "Hash": "8954069286b4b2b0d023d1b288dce978"
     },
     "jquerylib": {
       "Package": "jquerylib",
@@ -906,17 +706,6 @@
         "utils"
       ],
       "Hash": "cc5ac1ba4c238c7ca9fa6a87ca11a7e2"
-    },
-    "lhs": {
-      "Package": "lhs",
-      "Version": "1.2.0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp"
-      ],
-      "Hash": "6d18e58d3d1de31b6e5415c1fe291113"
     },
     "lifecycle": {
       "Package": "lifecycle",
@@ -1027,26 +816,6 @@
       ],
       "Hash": "ccbb8846be320b627e6aa2b4616a2ded"
     },
-    "onehot": {
-      "Package": "onehot",
-      "Version": "0.1.1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "f9fc9458fde89bfdc7b68dc715faacbd"
-    },
-    "pROC": {
-      "Package": "pROC",
-      "Version": "1.18.5",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "methods",
-        "plyr"
-      ],
-      "Hash": "82d32ebd548c6a4e7de73bab96411b3b"
-    },
     "pander": {
       "Package": "pander",
       "Version": "0.6.5",
@@ -1141,17 +910,6 @@
       ],
       "Hash": "2ec30ffbeec83da57655b850cf2d3e0e"
     },
-    "plyr": {
-      "Package": "plyr",
-      "Version": "1.8.9",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp"
-      ],
-      "Hash": "6b8177fd19982f0020743fadbfdbd933"
-    },
     "praise": {
       "Package": "praise",
       "Version": "1.0.0",
@@ -1197,36 +955,6 @@
         "vctrs"
       ],
       "Hash": "1cba04a4e9414bdefc9dcaa99649a8dc"
-    },
-    "quickmatch": {
-      "Package": "quickmatch",
-      "Version": "0.2.3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "distances",
-        "sandwich",
-        "scclust",
-        "stats"
-      ],
-      "Hash": "7a1a53b580c17bc96fa1abce95ab759a"
-    },
-    "rBayesianOptimization": {
-      "Package": "rBayesianOptimization",
-      "Version": "1.2.1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "GPfit",
-        "R",
-        "data.table",
-        "foreach",
-        "magrittr",
-        "stats",
-        "utils"
-      ],
-      "Hash": "46b661042a59c7f2558edc9b4aab1b5e"
     },
     "ranger": {
       "Package": "ranger",
@@ -1376,30 +1104,6 @@
       ],
       "Hash": "c19df082ba346b0ffa6f833e92de34d1"
     },
-    "scclust": {
-      "Package": "scclust",
-      "Version": "0.2.5",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "distances"
-      ],
-      "Hash": "634971872c1cf6d1484bbee2cfad4eb0"
-    },
-    "shape": {
-      "Package": "shape",
-      "Version": "1.4.6.1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "grDevices",
-        "graphics",
-        "stats"
-      ],
-      "Hash": "5c47e84dc0a3ca761ae1d307889e796d"
-    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.8.4",
@@ -1429,22 +1133,6 @@
         "vctrs"
       ],
       "Hash": "960e2ae9e09656611e0b8214ad543207"
-    },
-    "survival": {
-      "Package": "survival",
-      "Version": "3.7-0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "graphics",
-        "methods",
-        "splines",
-        "stats",
-        "utils"
-      ],
-      "Hash": "5aaa9cbaf4aba20f8e06fdea1850a398"
     },
     "testthat": {
       "Package": "testthat",
@@ -1576,24 +1264,6 @@
         "R"
       ],
       "Hash": "c826c7c4241b6fc89ff55aaea3fa7491"
-    },
-    "visNetwork": {
-      "Package": "visNetwork",
-      "Version": "2.1.2",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "grDevices",
-        "htmltools",
-        "htmlwidgets",
-        "jsonlite",
-        "magrittr",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "3e48b097e8d9a91ecced2ed4817a678d"
     },
     "waldo": {
       "Package": "waldo",

@@ -1,22 +1,245 @@
-dummy_tbl <- tibble::tribble(
-  ~tx, ~var1,   ~var2,   ~var3,   ~var4,   ~var5,   ~response,
-  0, -1.68,  1.66, -0.593,  2.37, -0.565,  3.00,
-  1, -1.42,  1.52,  0.177,  0.299,  1.56,  3.02,
-  0,  0.640,  0.190, -0.0838, 0.0324,  0.601,  0.894,
-  1, -0.727, -1.64, -0.938, -1.42,  0.769, -2.45,
-  1,  1.11,  1.76,  0.175, -1.12, -0.584,  4.14,
-  0, -1.91, -0.680, -0.918, -0.110, -0.826, -1.61,
-  0,  0.721,  0.263, -1.70,  0.133, -1.16, -1.27,
-  0, -0.633, -2.62, -2.20, -0.972, -0.403, -5.73,
-  1, -1.24,  0.976, -1.79, -0.453,  1.32,  0.628,
-  1,  1.58, -0.807, -0.174,  0.279,  0.0533, -0.356,
-  1,  0.705, -0.0402,  0.786,  0.799, -0.265,  4.80,
-  0, -0.952, -0.897,  2.36,  1.14,  1.48,  2.96,
-  1, -1.41,  0.169,  0.652,  1.44, -1.07,  4.17,
-  1, -1.24,  1.01, -0.298, -0.493, -0.890,  2.08,
-  1,  1.47, -0.669, -0.265,  0.908, -0.264,  3.79
-)
-
-dummy_tbl_extra <- dummy_tbl %>%
+dummy_tbl_extra_var <- dummy_tbl %>%
   dplyr::mutate(other = "foobar")
 
+expected_object_names <- c("estimation_method",
+                           "aggregation_method",
+                           "model",
+                           "var_importance",
+                           "study_col",
+                           "treatment_col",
+                           "outcome_col",
+                           "covariate_col",
+                           "extra_args",
+                           "estimation_object"
+)
+
+original_colnames <- colnames(dummy_tbl)
+original_colnames_extra_var <- colnames(dummy_tbl_extra_var)
+covariate_colnames <- paste0("var", 1:5)
+
+test_that("estimate_cate returns correct structure with valid inputs (causalforest / studyindicator)", {
+  result <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "causalforest",
+    aggregation_method = "studyindicator",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response"
+  )
+
+  expect_s3_class(result, "cate")
+  expect_named(result, expected_object_names)
+  expect_identical(result$estimation_method, "causalforest")
+  expect_identical(result$aggregation_method, "studyindicator")
+  expect_identical(result$study_col, "studyid")
+  expect_identical(result$treatment_col, "tx")
+  expect_identical(result$outcome_col, "response")
+  expect_identical(result$covariate_col, covariate_colnames)
+  expect_true(all(c(original_colnames, "tau_hat", "variance_estimates") %in% colnames(result$model)))
+
+  result_extra_var <- estimate_cate(
+    trial_tbl = dummy_tbl_extra_var,
+    estimation_method = "causalforest",
+    aggregation_method = "studyindicator",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response",
+    drop_col = "other"
+  )
+
+  expect_identical(result_extra_var$covariate_col, covariate_colnames)
+  expect_true(all(c(original_colnames_extra_var, "tau_hat", "variance_estimates") %in% colnames(result_extra_var$model)))
+
+  result_subset_var <- estimate_cate(
+    trial_tbl = dummy_tbl_extra_var,
+    estimation_method = "causalforest",
+    aggregation_method = "studyindicator",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response",
+    covariate_col = c("var1", "var2", "var3", "var4", "var5")
+  )
+
+  expect_identical(result_subset_var$covariate_col, covariate_colnames)
+  expect_true(all(c(original_colnames_extra_var, "tau_hat", "variance_estimates") %in% colnames(result_subset_var$model)))
+
+  result_extra_arg <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "causalforest",
+    aggregation_method = "studyindicator",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response",
+    num.trees = 1234,
+    foo = "bar"
+  )
+
+  expect_identical(result_extra_arg$extra_args, list(num.trees = 1234, foo = "bar"))
+  expect_true(result_extra_arg$estimation_object[["_num_trees"]] == 1234)
+})
+
+test_that("estimate_cate returns correct structure with valid inputs (causalforest / ensembleforest)", {
+  result <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "causalforest",
+    aggregation_method = "ensembleforest",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response"
+  )
+
+  expect_s3_class(result, "cate")
+  expect_named(result, expected_object_names)
+  expect_identical(result$estimation_method, "causalforest")
+  expect_identical(result$aggregation_method, "ensembleforest")
+  expect_identical(result$study_col, "studyid")
+  expect_identical(result$treatment_col, "tx")
+  expect_identical(result$outcome_col, "response")
+  expect_identical(result$covariate_col, covariate_colnames)
+  expect_true("tau_hat" %in% colnames(result$model))
+})
+
+test_that("estimate_cate returns correct structure with valid inputs (slearner / studyindicator)", {
+  result <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "slearner",
+    aggregation_method = "studyindicator",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response",
+    verbose = FALSE
+  )
+
+  expect_s3_class(result, "cate")
+  expect_named(result, expected_object_names)
+  expect_identical(result$estimation_method, "slearner")
+  expect_identical(result$aggregation_method, "studyindicator")
+  expect_identical(result$study_col, "studyid")
+  expect_identical(result$treatment_col, "tx")
+  expect_identical(result$outcome_col, "response")
+  expect_identical(result$covariate_col, covariate_colnames)
+  expect_true(all(c(original_colnames, "tau_hat", "variance_estimates") %in% colnames(result$model)))
+})
+
+test_that("estimate_cate returns correct structure with valid inputs (slearner / ensembleforest)", {
+  result <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "slearner",
+    aggregation_method = "ensembleforest",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response"
+  )
+
+  expect_s3_class(result, "cate")
+  expect_named(result, expected_object_names)
+  expect_identical(result$estimation_method, "slearner")
+  expect_identical(result$aggregation_method, "ensembleforest")
+  expect_identical(result$study_col, "studyid")
+  expect_identical(result$treatment_col, "tx")
+  expect_identical(result$outcome_col, "response")
+  expect_identical(result$covariate_col, covariate_colnames)
+  expect_true("tau_hat" %in% colnames(result$model))
+})
+
+test_that("estimate_cate raises error for invalid treatment and/or response values", {
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl %>% dplyr::mutate(tx = paste0("Treatment ", tx)),
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl %>% dplyr::mutate(tx = tx + 1),
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl %>% dplyr::mutate(response = as.character(response)),
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+})
+
+test_that("estimate_cate raises error for missing columns", {
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl %>% dplyr::select(-studyid),
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl %>% dplyr::select(-tx),
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl %>% dplyr::select(-response),
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl,
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response",
+      covariate_col = "foobar"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl,
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response",
+      covariate_col = "foobar"
+    ),
+    error = TRUE
+  )
+})
