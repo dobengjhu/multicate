@@ -17,7 +17,7 @@ dummy_counterfactual <- matrix(c(8.1, 10.4, 7.7,
 
 w <- c(1, 0, 1)
 
-expected_means_cate <- c(2.18, 0.98, 1.92)
+expected_means_cate <- c(2.18, -0.98, 1.92)
 expected_vars_cate <- c(14.45, 3.41, 6.39)
 
 test_that("estimate_sbart_tau computes correct CATE estimates and variances", {
