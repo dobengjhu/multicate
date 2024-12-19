@@ -4,10 +4,10 @@
 \alias{plot.cate}
 \title{Plot Diagnostics for a CATE Object}
 \usage{
-\method{plot}{cate}(cate_obj, which_plot = 1:5, ask = TRUE)
+\method{plot}{cate}(object, which_plot = 1:5, ask = TRUE)
 }
 \arguments{
-\item{cate_obj}{\code{cate} list. An object resulting from \link{estimate_cate}.}
+\item{object}{list. An object resulting from \link{estimate_cate}.}
 
 \item{which_plot}{numeric vector. A vector indicating which plots should be generated.}
 
@@ -18,6 +18,6 @@
 Five plots (selectable by \code{which_plot}) currently available: a histogram of estimated conditional
 average treatment effects (CATEs), a boxplot of CATEs stratified by study membership, a plot of
 95\% confidence intervals for all CATEs sorted in order to CATE estimate value, a best linear
-projection, and an interpretation tree (only available when \code{estimation_method} is set to
-"causalforest").
+projection (only available when \code{estimation_method} is set to "causalforest"), and an
+interpretation tree.
 }
