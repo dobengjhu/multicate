@@ -5,7 +5,6 @@
 #'
 #' @return Silent return unless validation fail.
 assert_column_names_exist <- function(table_object, ...) {
-  browser()
   dots <- list(...)
   assertthat::assert_that(
     all(purrr::map_chr(dots, class) == "character"),
