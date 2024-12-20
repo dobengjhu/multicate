@@ -1,0 +1,87 @@
+
+R version 4.4.2 (2024-10-31) -- "Pile of Leaves"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "multicate"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> base::assign(".ExTimings", "multicate-Ex.timings", pos = 'CheckExEnv')
+> base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
+> base::assign(".format_ptime",
++ function(x) {
++   if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
++   if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
++   options(OutDec = '.')
++   format(x[1L:3L], digits = 7L)
++ },
++ pos = 'CheckExEnv')
+> 
+> ### * </HEADER>
+> library('multicate')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("dummy_tbl")
+> ### * dummy_tbl
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: dummy_tbl
+> ### Title: Dummy Dataset for Unit Testing
+> ### Aliases: dummy_tbl
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> dummy_tbl
+# A tibble: 1,500 × 8
+   studyid    tx    var1   var2   var3   var4    var5 response
+   <chr>   <int>   <dbl>  <dbl>  <dbl>  <dbl>   <dbl>    <dbl>
+ 1 study1      0  0.923  -0.602  0.568  0.258 -0.390     0.533
+ 2 study1      1  0.672   0.322  0.353  1.10  -0.908     3.30 
+ 3 study1      0 -1.12   -1.11   1.73   0.314 -0.729     0.804
+ 4 study1      1 -0.0527  0.981 -0.988 -1.01   1.01     -0.129
+ 5 study1      1 -0.841  -0.898 -1.19  -0.200 -0.395    -1.69 
+ 6 study1      0 -0.712   1.25  -1.07  -1.68   0.739    -1.37 
+ 7 study1      1  1.64   -0.225 -1.16  -0.343 -1.95      0.779
+ 8 study1      0  1.53    0.819  1.47   2.31   0.619     4.92 
+ 9 study1      0 -0.404   0.575  1.23   0.413  0.0940    2.33 
+10 study1      1 -0.746  -0.581 -1.08   0.329  2.35     -0.520
+# ℹ 1,490 more rows
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("dummy_tbl", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  0.225 0.016 0.243 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

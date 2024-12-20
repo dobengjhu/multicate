@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' Summarizing CATE Model Fits
 #'
 #' @param object list. An object of class "cate", usually a result of a call to \link{estimate_cate}.
@@ -26,9 +25,6 @@
 summary.cate <- function(object,
                          tauhat_column = "tau_hat",
                          ...) {
-=======
-summary.cate <- function(object) {
->>>>>>> 21dd438 (New summary() function for cate objects)
   assertthat::assert_that(
     "cate" %in% class(object),
     msg = "Object must be of class cate"
@@ -44,7 +40,6 @@ summary.cate <- function(object) {
     msg = "Estimation method must be 'causalforest' or 'slearner'."
   )
 
-<<<<<<< HEAD
   if (object$aggregation_method == "ensembleforest") {
     assert_column_names_exist(object$model, tauhat_column)
   }
@@ -121,21 +116,4 @@ print.summary.cate <- function(x,
 
   cat("\nStudy-Specific ATE:\n")
   print(x$studycate, digits = digits)
-=======
-  if (object$estimation_method == "causalforest") {
-    ate <- grf::average_treatment_effect(object$estimation_object,
-                                                      target.sample = "all")
-  } else {
-    sbart <- object$estimation_object
-    w_fac <- ifelse(object$model[[object$treatment_col]] == 1, 1, -1)
-    diffs <- sweep(sbart$yhat.train - sbart$yhat.test,
-                   2,
-                   w_fac,
-                   '*')
-    mean_diffs <- apply(diffs, 1, mean)
-    ate <- c(mean(mean_diffs), sd(mean_diffs))
-  }
-
-
->>>>>>> 21dd438 (New summary() function for cate objects)
 }

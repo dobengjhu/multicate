@@ -9,14 +9,14 @@
 #'
 #' @importFrom grDevices devAskNewPage
 #' @importFrom stats model.matrix
-#'
 #' @param x list. An object resulting from \link{estimate_cate}.
 #' @param which_plot numeric vector. A vector indicating which plots should be generated.
 #' @param ask logical. When TRUE, the user is asked before each plot, see
 #'  \link[graphics:par]{par(ask = .)}.
 #'
-#' @example inst/examples/example-plot_cate.R
 #' @export
+#'
+#' @examples
 plot.cate <- function(x,
                       which_plot = 1:5,
                       ask = TRUE) {
@@ -28,7 +28,7 @@ plot.cate <- function(x,
   assertthat::assert_that(
     is.numeric(which_plot),
     all(dplyr::between(which_plot, 1, 5)),
-    msg = "'which_plot' must be a numeric value between 1 and 5"
+    msg = "'which_plot' must be in 1:3"
   )
 
   model <- x$model
@@ -36,14 +36,18 @@ plot.cate <- function(x,
 
   if (3 %in% which_plot) {
     if (!("variance_estimates" %in% colnames(model))) {
-      warning("Variance estimates missing from model output. 95% CI plot will not be produced.")
+      cli::cli_alert_warning(
+        "Variance estimates missing from model output. 95% CI plot will not be produced."
+      )
       which_plot <- setdiff(which_plot, 3)
     }
   }
 
   if (4 %in% which_plot) {
     if (!("causal_forest" %in% class(x$estimation_object))) {
-      warning("Object of class 'causal_forest' required for best linear projection figure.")
+      cli::cli_alert_warning(
+        "Object of class 'causal_forest' required for best linear projection figure."
+      )
       which_plot <- setdiff(which_plot, 4)
     }
   }
@@ -74,7 +78,7 @@ plot.cate <- function(x,
 
   if (show[3]) {
     p <- model %>%
-      dplyr::arrange(.data$tau_hat) %>%
+      dplyr::arrange(tau_hat) %>%
       tibble::rownames_to_column(var = "id_ord") %>%
       dplyr::mutate(id_ord = as.numeric(.data$id_ord),
                     lower = .data$tau_hat - 1.96 * sqrt(.data$variance_estimates),
@@ -100,6 +104,7 @@ plot.cate <- function(x,
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
     feat <- model.matrix(fm, x$model)
     blpList <- grf::best_linear_projection(x$estimation_object, A = feat)
+
     blps <- jtools::plot_summs(blpList,
                                point.shape = FALSE)
     dfg <- blps$data
@@ -114,7 +119,7 @@ plot.cate <- function(x,
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "dashed",
                           color = "black",
-                          linewidth = 0.65) +
+                          size = 0.65) +
       ggplot2::geom_pointrange(position = ggplot2::position_dodge(width = 0.75),
                                ggplot2::aes(ymin = .data$conf.low,
                                             ymax = .data$conf.high),
@@ -140,31 +145,19 @@ plot.cate <- function(x,
 
 #' Plot Variable Treatment Effect
 #'
-#'#' @details
-#' This function plots the value of the selected covariate for each observation in the dataset
-#' against the value of tau_hat for the variable. This is what the findings mean... TODO
-#'
 #' @param object list. An object resulting from \link{estimate_cate}.
 #' @param covariate_name string. Name of a covariate included in dataset used to estimate tau_hat.
 #'
-#' @example inst/examples/example-plot_vteffect.R
 #' @export
+#'
+#' @details
+#' This function plots the value of the selected covariate for each observation in the dataset
+#' against the value of tau_hat for the variable. This is what the findings mean...
+#'
+#' @examples
 plot_vteffect <- function(object, covariate_name) {
-  assertthat::assert_that(
-    inherits(object, "cate"),
-    msg = "use only with \"cate\" objects"
-  )
-
-  assertthat::assert_that(
-    class(covariate_name) == "character",
-    msg = "`covariate_name` must be a string."
-  )
-
   model <- object$model
   study_col <- object$study_col
-
-  assert_column_names_exist(model, covariate_name)
-
   ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
                                         y = .data$tau_hat,
                                         color = !!rlang::sym(study_col))) +
