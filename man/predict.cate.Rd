@@ -4,10 +4,10 @@
 \alias{predict.cate}
 \title{Predict Heterogeneous Treatment Effects Based on Estimated CATEs}
 \usage{
-\method{predict}{cate}(cate_obj, newdata_tbl, alpha = 0.05)
+\method{predict}{cate}(object, newdata_tbl, alpha = 0.05)
 }
 \arguments{
-\item{cate_obj}{list. An object resulting from \link{estimate_cate}.}
+\item{object}{list. An object resulting from \link{estimate_cate}.}
 
 \item{newdata_tbl}{tbl. A tbl containing columns for treatment, outcome, study ID, and any
 additional covariates used to generate \code{cate_obj}. All study data must be included in single

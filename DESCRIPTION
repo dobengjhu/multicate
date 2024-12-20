@@ -18,7 +18,24 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
-    magrittr
+    magrittr,
+    assertthat,
+    cli,
+    data.table,
+    dbarts,
+    dplyr,
+    fastDummies,
+    ggplot2,
+    glue,
+    grf,
+    jtools,
+    purrr,
+    ranger,
+    rlang,
+    rpart,
+    rpart.plot,
+    stats,
+    tibble
 Depends: 
     R (>= 3.5)
 LazyData: true
