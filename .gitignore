@@ -6,3 +6,7 @@
 **/*.RData
 **/*.html
 *.Rcheck/
+.DS_Store
+vignettes/*.html
+vignettes/*.R
+inst/doc/
