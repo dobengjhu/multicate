@@ -1,6 +1,7 @@
 %>%	pipe
 assert_column_class	assert_column_class
 assert_column_names_exist	assert_column_names_exist
+aug_dummy_tbl	aug_dummy_tbl
 build_aug_data	build_aug_data
 dummy_tbl	dummy_tbl
 estimate_cate	estimate_cate

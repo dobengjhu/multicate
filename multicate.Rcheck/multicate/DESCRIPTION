@@ -23,9 +23,9 @@ Imports: magrittr, assertthat, cli, data.table, dbarts, dplyr,
 Depends: R (>= 3.5)
 LazyData: true
 NeedsCompilation: no
-Packaged: 2024-12-20 02:21:41 UTC; danielobeng
+Packaged: 2025-01-01 22:23:22 UTC; danielobeng
 Author: Daniel Obeng [cre],
   Carly Brantner [aut],
   Elizabeth Stuart [aut]
 Maintainer: Daniel Obeng <dobeng1@jhu.edu>
-Built: R 4.4.2; ; 2024-12-20 02:21:42 UTC; unix
+Built: R 4.4.2; ; 2025-01-01 22:23:23 UTC; unix

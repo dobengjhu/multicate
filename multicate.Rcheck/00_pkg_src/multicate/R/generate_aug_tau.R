@@ -66,6 +66,7 @@ generate_aug_tau.slearner_args <- function(named_args,
   alldata_tau_args <- prepare_cate_data(named_args,
                                         "ensembleforest")
 
+  treatment <- rlang::sym(named_args$treatment_col)
   extra_args <- list(...)
   relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]
   relevant_args[["keeptrees"]] <- TRUE
@@ -73,16 +74,16 @@ generate_aug_tau.slearner_args <- function(named_args,
 
   sbart_fit <- do.call(dbarts::bart,
                        c(list(x.train = primary_tau_args$feature_tbl %>%
-                                dplyr::mutate(W = primary_tau_args$treatment_vec),
+                                dplyr::mutate(!!treatment := primary_tau_args$treatment_vec),
                               y.train = primary_tau_args$outcome_vec),
                          relevant_args))
 
   observed_all <- predict(sbart_fit,
                           alldata_tau_args$feature_tbl %>%
-                            dplyr::mutate(W = alldata_tau_args$treatment_vec))
+                            dplyr::mutate(!!treatment := alldata_tau_args$treatment_vec))
   counterfactual_all <- predict(sbart_fit,
                                 alldata_tau_args$feature_tbl %>%
-                                  dplyr::mutate(W = as.numeric(alldata_tau_args$treatment_vec == 0)))
+                                  dplyr::mutate(!!treatment := as.numeric(alldata_tau_args$treatment_vec == 0)))
 
   named_args$trial_tbl %>%
     dplyr::mutate(tau_hat = estimate_sbart_tau(observed_all,

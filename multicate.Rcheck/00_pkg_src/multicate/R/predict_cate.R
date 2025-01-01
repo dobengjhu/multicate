@@ -35,7 +35,8 @@
 #' @importFrom dplyr n
 #' @importFrom data.table :=
 #' @importFrom stats var qt
-#' @param cate_obj list. An object resulting from \link{estimate_cate}.
+#' @importFrom rlang .data
+#' @param object list. An object resulting from \link{estimate_cate}.
 #' @param newdata_tbl tbl. A tbl containing columns for treatment, outcome, study ID, and any
 #'  additional covariates used to generate `cate_obj`. All study data must be included in single
 #'  tbl. Note that only two treatments can be considered and treatment must be coded as 0/1
@@ -44,63 +45,84 @@
 #'
 #' @return A tbl including all columns and data from `newdata_tbl`, with additional columns
 #' including a mean predicted CATE and associated 100(1 - \eqn{\alpha})% prediction interval.
-#' @export
 #'
-#' @examples
-predict.cate <- function(cate_obj,
+#' @example inst/examples/example-predict_cate.R
+#' @export
+predict.cate <- function(object,
                          newdata_tbl,
                          alpha = 0.05) {
   assertthat::assert_that(
-    cate_obj$estimation_method %in% c("causalforest", "slearner"),
-    msg = "Estimation method must be 'causalforest' or 'slearner'."
+    inherits(object, "cate"),
+    msg = "use only with \"cate\" objects"
   )
 
   assertthat::assert_that(
-    cate_obj$aggregation_method == "studyindicator",
+    any(class(newdata_tbl) %in% c("tbl", "data.frame")),
+    msg = "newdata_tbl` must be a tibble or data.frame."
+  )
+
+  assertthat::assert_that(
+    object$aggregation_method == "studyindicator",
     msg = "Aggregation method must be 'studyindicator'."
   )
 
-  model <- cate_obj$model
-  S <- rlang::sym(cate_obj$study_col)
-  W <- rlang::sym(cate_obj$treatment_col)
-  Y <- rlang::sym(cate_obj$outcome)
+  assertthat::assert_that(
+    is.numeric(alpha),
+    msg = "`alpha` must be a numeric value between 0 and 1."
+  )
+
+  assertthat::assert_that(
+    dplyr::between(alpha, 0, 1),
+    msg = "`alpha` must be a numeric value between 0 and 1."
+  )
+
+  model <- object$model
+  S <- rlang::sym(object$study_col)
+  W <- rlang::sym(object$treatment_col)
+  Y <- rlang::sym(object$outcome)
+  K <- model %>%
+    dplyr::distinct(!!S) %>%
+    dplyr::pull()
+
+  assertthat::assert_that(
+    length(K) > 2,
+    msg = "Insufficient degrees of freedom; original model must include at least 3 studies."
+  )
 
   required_colnames <- model %>%
-    dplyr::select(!!W, !!!rlang::syms(cate_obj$covariate_col)) %>%
+    dplyr::select(!!W, !!!rlang::syms(object$covariate_col)) %>%
     colnames()
 
   assertthat::assert_that(
     all(required_colnames %in% colnames(newdata_tbl)),
-    msg = glue::glue("New data must include same treatment, outcome, and covariate columns used \\
+    msg = glue::glue("New data must include same treatment and covariate columns used \\
                      to fit original model")
   )
 
   original_colnames <- setdiff(colnames(newdata_tbl), as.character(S))
 
-  K <- model %>%
-    dplyr::distinct(!!S) %>%
-    nrow()
-
   newdata <- newdata_tbl %>%
-    dplyr::slice(rep(1:n(), each = K)) %>%
-    dplyr::mutate(!!S := rep(1:K, times = nrow(newdata_tbl)))
+    dplyr::slice(rep(1:n(), each = length(K))) %>%
+    dplyr::mutate(!!S := rep(K, times = nrow(newdata_tbl)))
 
   newfeat <- newdata %>%
     {
-      if (cate_obj$estimation_method == "causalforest") {
-        dplyr::select(., !!S, dplyr::all_of(cate_obj$covariate_col))
+      if (object$estimation_method == "causalforest") {
+        dplyr::select(., !!S, dplyr::all_of(object$covariate_col))
       } else {
-        dplyr::select(., !!W, !!S, dplyr::all_of(cate_obj$covariate_col))
+        dplyr::select(., !!W, !!S, dplyr::all_of(object$covariate_col))
       }
     } %>%
     fastDummies::dummy_cols(select_columns = as.character(S),
                             remove_selected_columns = TRUE)
 
-  if (cate_obj$estimation_method == "causalforest" &
-      cate_obj$aggregation_method == "studyindicator") {
-    relevant_args <- cate_obj$extra_args[names(cate_obj$extra_args) %in% names(formals(grf:::predict.causal_forest))]
-    newdata_pred <- do.call(grf:::predict.causal_forest,
-                            c(list(object = cate_obj$estimation_object,
+  if (object$estimation_method == "causalforest" &
+      object$aggregation_method == "studyindicator") {
+
+    predict_causal_forest <- get("predict.causal_forest", envir = asNamespace("grf"))
+    relevant_args <- object$extra_args[names(object$extra_args) %in% names(formals(predict_causal_forest))]
+    newdata_pred <- do.call(predict_causal_forest,
+                            c(list(object = object$estimation_object,
                                    newdata = newfeat,
                                    estimate.variance = TRUE),
                               relevant_args))
@@ -108,18 +130,19 @@ predict.cate <- function(cate_obj,
     newdata <- newdata %>%
       dplyr::mutate(tau_predicted = newdata_pred$predictions,
                     tau_var = newdata_pred$variance.estimates)
-  } else if (cate_obj$estimation_method == "slearner" &
-             cate_obj$aggregation_method == "studyindicator") {
+  } else if (object$estimation_method == "slearner" &
+             object$aggregation_method == "studyindicator") {
     newfeat_counterfactual <- newfeat %>%
       dplyr::mutate(!!W := as.numeric(!!W == 0))
 
-    relevant_args <- cate_obj$extra_args[names(cate_obj$extra_args) %in% names(formals(dbarts:::predict.bart))]
-    newdata_pred <- do.call(dbarts:::predict.bart,
-                            c(list(object = cate_obj$estimation_object,
+    predict_bart <- get("predict.bart", envir = asNamespace("dbarts"))
+    relevant_args <- object$extra_args[names(object$extra_args) %in% names(formals(predict_bart))]
+    newdata_pred <- do.call(predict_bart,
+                            c(list(object = object$estimation_object,
                                    newdata = newfeat),
                               relevant_args))
-    newdata_pred_counterfactual <- do.call(dbarts:::predict.bart,
-                                           c(list(object = cate_obj$estimation_object,
+    newdata_pred_counterfactual <- do.call(predict_bart,
+                                           c(list(object = object$estimation_object,
                                                   newdata = newfeat_counterfactual),
                                              relevant_args))
 
@@ -138,10 +161,14 @@ predict.cate <- function(cate_obj,
                      var_between = var(.data$tau_predicted),
                      n_K = n()) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(var_tot = var_within + var_between,
-                  sig = sqrt(var_tot),
-                  lower = mean_tau_predicted - qt(1 - alpha/2, n_K - 2) * sig,
-                  upper = mean_tau_predicted + qt(1 - alpha/2, n_K - 2) * sig)
+    dplyr::mutate(var_tot = .data$var_within + .data$var_between,
+                  sig = sqrt(.data$var_tot),
+                  lower = .data$mean_tau_predicted - qt(1 - alpha/2, .data$n_K - 2) * .data$sig,
+                  upper = .data$mean_tau_predicted + qt(1 - alpha/2, .data$n_K - 2) * .data$sig) %>%
+    dplyr::select(dplyr::all_of(original_colnames),
+                  tau_predicted = "mean_tau_predicted",
+                  ci_lower = "lower",
+                  ci_upper = "upper")
 
   newdata_tbl %>%
     dplyr::left_join(cis, by = original_colnames)
