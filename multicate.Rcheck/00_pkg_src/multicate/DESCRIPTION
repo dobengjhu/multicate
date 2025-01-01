@@ -1,0 +1,30 @@
+Package: multicate
+Title: Estimate Combined Conditional Average Treatment Effect And
+        Predict Against Target Population
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Daniel", "Obeng", , "dobeng1@jhu.edu", role = "cre"),
+    person("Carly", "Brantner", , "carly.brantner@duke.edu", role = "aut"),
+    person("Elizabeth", "Stuart", , "estuart@jhu.edu", role = "aut")
+  )
+Description: multicate provides functions for performing machine learning methods that estimate the 
+    conditional average treatment effect (CATE) by combining data from multiple studies. Additional 
+    functions can be used to estimate prediction intervals for the CATE in a target sample based on 
+    the aforementioned models. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: magrittr, assertthat, cli, data.table, dbarts, dplyr,
+        fastDummies, ggplot2, glue, grf, jtools, purrr, ranger, rlang,
+        rpart, rpart.plot, stats, tibble
+Depends: R (>= 3.5)
+LazyData: true
+NeedsCompilation: no
+Packaged: 2025-01-01 22:23:22 UTC; danielobeng
+Author: Daniel Obeng [cre],
+  Carly Brantner [aut],
+  Elizabeth Stuart [aut]
+Maintainer: Daniel Obeng <dobeng1@jhu.edu>

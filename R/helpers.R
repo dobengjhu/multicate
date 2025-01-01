@@ -49,7 +49,8 @@ assert_column_class <- function(table_object,
     any(class_set[[column_name]] %in% column_class),
     msg = glue::glue(
       "{column_name} does not possess one of the following classes: {paste(column_class,
-      collapse = ' | '}"
+      collapse = ' | ')}"
+
     )
   )
 }

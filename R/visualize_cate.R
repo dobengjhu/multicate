@@ -7,45 +7,43 @@
 #' projection (only available when `estimation_method` is set to "causalforest"), and an
 #' interpretation tree.
 #'
-#' @param object list. An object resulting from \link{estimate_cate}.
+#' @importFrom grDevices devAskNewPage
+#' @importFrom stats model.matrix
+#'
+#' @param x list. An object resulting from \link{estimate_cate}.
 #' @param which_plot numeric vector. A vector indicating which plots should be generated.
 #' @param ask logical. When TRUE, the user is asked before each plot, see
 #'  \link[graphics:par]{par(ask = .)}.
 #'
+#' @example inst/examples/example-plot_cate.R
 #' @export
-#'
-#' @examples
-plot.cate <- function(object,
+plot.cate <- function(x,
                       which_plot = 1:5,
                       ask = TRUE) {
   assertthat::assert_that(
-    inherits(object, "cate"),
+    inherits(x, "cate"),
     msg = "use only with \"cate\" objects"
   )
 
   assertthat::assert_that(
     is.numeric(which_plot),
     all(dplyr::between(which_plot, 1, 5)),
-    msg = "'which_plot' must be in 1:3"
+    msg = "'which_plot' must be a numeric value between 1 and 5"
   )
 
-  model <- object$model
-  covariate_col <- object$covariate_col
+  model <- x$model
+  covariate_col <- x$covariate_col
 
   if (3 %in% which_plot) {
     if (!("variance_estimates" %in% colnames(model))) {
-      cli::cli_alert_warning(
-        "Variance estimates missing from model output. 95% CI plot will not be produced."
-      )
+      warning("Variance estimates missing from model output. 95% CI plot will not be produced.")
       which_plot <- setdiff(which_plot, 3)
     }
   }
 
   if (4 %in% which_plot) {
-    if (!("causal_forest" %in% class(object$estimation_object))) {
-      cli::cli_alert_warning(
-        "Object of class 'causal_forest' required for best linear projection figure."
-      )
+    if (!("causal_forest" %in% class(x$estimation_object))) {
+      warning("Object of class 'causal_forest' required for best linear projection figure.")
       which_plot <- setdiff(which_plot, 4)
     }
   }
@@ -59,15 +57,15 @@ plot.cate <- function(object,
   }
 
   if (show[1]) {
-    p <- ggplot2::ggplot(model, ggplot2::aes(x = tau_hat)) +
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = .data$tau_hat)) +
       ggplot2::geom_histogram(color="black", fill="white", bins=30) +
       ggplot2::xlab("CATE Estimate")
     print(p)
   }
 
   if (show[2]) {
-    study_col <- object$study_col
-    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(study_col), y = tau_hat)) +
+    study_col <- x$study_col
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(study_col), y = .data$tau_hat)) +
       ggplot2::geom_boxplot() +
       ggplot2::xlab("Study ID") +
       ggplot2::ylab("CATE Estimate")
@@ -76,14 +74,14 @@ plot.cate <- function(object,
 
   if (show[3]) {
     p <- model %>%
-      dplyr::arrange(tau_hat) %>%
+      dplyr::arrange(.data$tau_hat) %>%
       tibble::rownames_to_column(var = "id_ord") %>%
-      dplyr::mutate(id_ord = as.numeric(id_ord),
-                    lower = tau_hat - 1.96 * sqrt(variance_estimates),
-                    upper = tau_hat + 1.96 * sqrt(variance_estimates)) %>%
-      ggplot2::ggplot(ggplot2::aes(x = id_ord, y = tau_hat)) +
-      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower,
-                                          ymax = upper),
+      dplyr::mutate(id_ord = as.numeric(.data$id_ord),
+                    lower = .data$tau_hat - 1.96 * sqrt(.data$variance_estimates),
+                    upper = .data$tau_hat + 1.96 * sqrt(.data$variance_estimates)) %>%
+      ggplot2::ggplot(ggplot2::aes(x = .data$id_ord, y = .data$tau_hat)) +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower,
+                                          ymax = .data$upper),
                              colour = "lightgray") +
       ggplot2::geom_hline(ggplot2::aes(yintercept = 0),
                           linetype = "dashed",
@@ -100,26 +98,26 @@ plot.cate <- function(object,
 
   if (show[4]) {
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
-    feat <- model.matrix(fm, object$model)
-    blpList <- grf::best_linear_projection(object$estimation_object, A = feat)
-
+    feat <- model.matrix(fm, x$model)
+    blpList <- grf::best_linear_projection(x$estimation_object, A = feat)
     blps <- jtools::plot_summs(blpList,
                                point.shape = FALSE)
     dfg <- blps$data
     dfg$study <- dfg$model
 
     p <- ggplot2::ggplot(dfg,
-                         ggplot2::aes(x = study,
-                                      y = estimate,
-                                      color = term,
-                                      group = term)) +
+                         ggplot2::aes(x = .data$study,
+                                      y = .data$estimate,
+                                      color = .data$term,
+                                      group = .data$term)) +
       ggplot2::coord_flip() +
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "dashed",
                           color = "black",
-                          size = 0.65) +
+                          linewidth = 0.65) +
       ggplot2::geom_pointrange(position = ggplot2::position_dodge(width = 0.75),
-                               ggplot2::aes(ymin = conf.low, ymax = conf.high),
+                               ggplot2::aes(ymin = .data$conf.low,
+                                            ymax = .data$conf.high),
                                alpha = 0.85) +
       ggplot2::ggtitle("CATE Best Linear Projection by Covariate") +
       theme_MH +
@@ -142,21 +140,33 @@ plot.cate <- function(object,
 
 #' Plot Variable Treatment Effect
 #'
+#' @details
+#' This function plots the value of the selected covariate for each observation in the dataset
+#' against the value of tau_hat for the variable. This is what the findings mean... TODO
+#'
 #' @param object list. An object resulting from \link{estimate_cate}.
 #' @param covariate_name string. Name of a covariate included in dataset used to estimate tau_hat.
 #'
+#' @example inst/examples/example-plot_vteffect.R
 #' @export
-#'
-#' @details
-#' This function plots the value of the selected covariate for each observation in the dataset
-#' against the value of tau_hat for the variable. This is what the findings mean...
-#'
-#' @examples
 plot_vteffect <- function(object, covariate_name) {
+  assertthat::assert_that(
+    inherits(object, "cate"),
+    msg = "use only with \"cate\" objects"
+  )
+
+  assertthat::assert_that(
+    class(covariate_name) == "character",
+    msg = "`covariate_name` must be a string."
+  )
+
   model <- object$model
   study_col <- object$study_col
+
+  assert_column_names_exist(model, covariate_name)
+
   ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
-                                        y = tau_hat,
+                                        y = .data$tau_hat,
                                         color = !!rlang::sym(study_col))) +
     ggplot2::geom_point() +
     ggplot2::xlab(covariate_name) +

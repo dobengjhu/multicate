@@ -7,7 +7,7 @@ Authors@R: c(
     person("Elizabeth", "Stuart", , "estuart@jhu.edu", role = "aut")
   )
 Description: multicate provides functions for performing machine learning methods that estimate the 
-    conditional average treatment effect (CATE) by combining data from multiple RCTs. Additional 
+    conditional average treatment effect (CATE) by combining data from multiple studies. Additional 
     functions can be used to estimate prediction intervals for the CATE in a target sample based on 
     the aforementioned models. 
 License: MIT + file LICENSE
@@ -18,4 +18,24 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
-    magrittr
+    magrittr,
+    assertthat,
+    cli,
+    data.table,
+    dbarts,
+    dplyr,
+    fastDummies,
+    ggplot2,
+    glue,
+    grf,
+    jtools,
+    purrr,
+    ranger,
+    rlang,
+    rpart,
+    rpart.plot,
+    stats,
+    tibble
+Depends: 
+    R (>= 3.5)
+LazyData: true
