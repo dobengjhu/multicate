@@ -111,6 +111,27 @@ If desired, propensity scores can be separately estimated and included in one of
 covariate for S-learner with BART, or as the \code{W.hat} argument in the causal forest (see \code{grf}
 documentation).
 }
+\examples{
+# inst/examples/example-estimate_cate.R
+
+estimate_cate(
+  trial_tbl = dummy_tbl,
+  estimation_method = "causalforest",
+  aggregation_method = "studyindicator",
+  study_col = "studyid",
+  treatment_col = "tx",
+  outcome_col = "response"
+)
+
+estimate_cate(
+  trial_tbl = dummy_tbl,
+  estimation_method = "slearner",
+  aggregation_method = "ensembleforest",
+  study_col = "studyid",
+  treatment_col = "tx",
+  outcome_col = "response"
+)
+}
 \references{
 Hill, J. L. (2011). Bayesian Nonparametric Modeling for Causal Inference.
 \emph{Journal of Computational and Graphical Statistics, 20}(1), 217–240.

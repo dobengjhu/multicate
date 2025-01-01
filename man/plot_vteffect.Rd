@@ -12,9 +12,22 @@ plot_vteffect(object, covariate_name)
 \item{covariate_name}{string. Name of a covariate included in dataset used to estimate tau_hat.}
 }
 \description{
-Plot Variable Treatment Effect
-}
-\details{
+#' @details
 This function plots the value of the selected covariate for each observation in the dataset
-against the value of tau_hat for the variable. This is what the findings mean...
+against the value of tau_hat for the variable. This is what the findings mean... TODO
+}
+\examples{
+# inst/examples/example-plot_vteffect.R
+
+cate_object <- estimate_cate(
+  trial_tbl = dummy_tbl,
+  estimation_method = "causalforest",
+  aggregation_method = "studyindicator",
+  study_col = "studyid",
+  treatment_col = "tx",
+  outcome_col = "response"
+)
+
+plot_vteffect(cate_object, "var1")
+plot_vteffect(cate_object, "var3")
 }

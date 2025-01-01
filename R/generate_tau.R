@@ -65,8 +65,8 @@ generate_tau.studyindicator_args <- function(named_args,
     return(list(tau_hat = sbart_estimates$means_cate,
                 variance_estimates = sbart_estimates$vars_cate,
                 var_importance = dplyr::rename(tibble::enframe(colMeans(sbart_fit$varcount)),
-                                               variable = .data$name,
-                                               importance = .data$value),
+                                               variable = "name",
+                                               importance = "value"),
                 fit_object = sbart_fit))
   }
 }

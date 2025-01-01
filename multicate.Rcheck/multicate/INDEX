@@ -2,6 +2,7 @@ assert_column_class     Assert Column in tbl Object is of a Specified
                         Class
 assert_column_names_exist
                         Assert tbl Object Contains Specified Column(s)
+aug_dummy_tbl           Augmented Dummy Dataset for Unit Testing
 build_aug_data          Build Augmented Dataset for Ensemble Forest
 dummy_tbl               Dummy Dataset for Unit Testing
 estimate_cate           Estimate Heterogeneous Treatment Effects Across

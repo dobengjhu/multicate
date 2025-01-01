@@ -89,9 +89,8 @@
 #'  - `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest}
 #'  or \link[dbarts:bart]{dbarts::bart}, according to the `estimation_method` selected.
 #'
+#' @example inst/examples/example-estimate_cate.R
 #' @export
-#'
-#' @examples
 estimate_cate <- function(trial_tbl,
                           estimation_method = c("slearner", "causalforest"),
                           aggregation_method = c("studyindicator", "ensembleforest"),

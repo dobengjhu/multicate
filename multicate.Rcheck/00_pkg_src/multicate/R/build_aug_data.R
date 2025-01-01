@@ -6,7 +6,7 @@
 build_aug_data <- function(named_args,
                            ...) {
   study_id <- named_args$trial_tbl %>%
-    dplyr::distinct(!!rlang::sym(named_args[["study_col"]])) %>%
+    dplyr::distinct(!!rlang::sym(named_args$study_col)) %>%
     dplyr::pull()
   dots <- list(...)
 

@@ -14,9 +14,8 @@
 #' @param ask logical. When TRUE, the user is asked before each plot, see
 #'  \link[graphics:par]{par(ask = .)}.
 #'
+#' @example inst/examples/example-plot_cate.R
 #' @export
-#'
-#' @examples
 plot.cate <- function(x,
                       which_plot = 1:5,
                       ask = TRUE) {
@@ -115,7 +114,7 @@ plot.cate <- function(x,
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "dashed",
                           color = "black",
-                          size = 0.65) +
+                          linewidth = 0.65) +
       ggplot2::geom_pointrange(position = ggplot2::position_dodge(width = 0.75),
                                ggplot2::aes(ymin = .data$conf.low,
                                             ymax = .data$conf.high),
@@ -141,16 +140,15 @@ plot.cate <- function(x,
 
 #' Plot Variable Treatment Effect
 #'
+#'#' @details
+#' This function plots the value of the selected covariate for each observation in the dataset
+#' against the value of tau_hat for the variable. This is what the findings mean... TODO
+#'
 #' @param object list. An object resulting from \link{estimate_cate}.
 #' @param covariate_name string. Name of a covariate included in dataset used to estimate tau_hat.
 #'
+#' @example inst/examples/example-plot_vteffect.R
 #' @export
-#'
-#' @details
-#' This function plots the value of the selected covariate for each observation in the dataset
-#' against the value of tau_hat for the variable. This is what the findings mean...
-#'
-#' @examples
 plot_vteffect <- function(object, covariate_name) {
   assertthat::assert_that(
     inherits(object, "cate"),
