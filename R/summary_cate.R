@@ -20,8 +20,8 @@
 #' * `studycate` : A table of the minimum, median, and maximum CATE values for patients from each
 #' study included in the model.
 #'
+#' @example inst/examples/example-summary_cate.R
 #' @export
-#' @example
 summary.cate <- function(object,
                          tauhat_column = "tau_hat",
                          ...) {
