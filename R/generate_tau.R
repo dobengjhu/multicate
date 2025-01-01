@@ -46,16 +46,17 @@ generate_tau.studyindicator_args <- function(named_args,
                 var_importance = var_import,
                 fit_object = cf_fit))
   } else if (named_args$estimation_method == "slearner") {
+    treatment <- rlang::sym(named_args$treatment_col)
     extra_args <- list(...)
     relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]
     relevant_args[["keeptrees"]] <- TRUE
 
     sbart_fit <- do.call(dbarts::bart,
                          c(list(x.train = tau_args$feature_tbl %>%
-                                  dplyr::mutate(W = tau_args$treatment_vec),
+                                  dplyr::mutate(!!treatment := tau_args$treatment_vec),
                                 y.train = tau_args$outcome_vec,
                                 x.test = tau_args$feature_tbl %>%
-                                  dplyr::mutate(W = as.numeric(tau_args$treatment_vec == 0))),
+                                  dplyr::mutate(!!treatment := as.numeric(tau_args$treatment_vec == 0))),
                            relevant_args))
     sbart_estimates <- estimate_sbart_tau(sbart_fit$yhat.train,
                                           sbart_fit$yhat.test,

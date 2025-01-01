@@ -52,8 +52,13 @@ predict.cate <- function(object,
                          newdata_tbl,
                          alpha = 0.05) {
   assertthat::assert_that(
-    object$estimation_method %in% c("causalforest", "slearner"),
-    msg = "Estimation method must be 'causalforest' or 'slearner'."
+    inherits(object, "cate"),
+    msg = "use only with \"cate\" objects"
+  )
+
+  assertthat::assert_that(
+    any(class(newdata_tbl) %in% c("tbl", "data.frame")),
+    msg = "newdata_tbl` must be a tibble or data.frame."
   )
 
   assertthat::assert_that(
@@ -61,10 +66,28 @@ predict.cate <- function(object,
     msg = "Aggregation method must be 'studyindicator'."
   )
 
+  assertthat::assert_that(
+    is.numeric(alpha),
+    msg = "`alpha` must be a numeric value between 0 and 1."
+  )
+
+  assertthat::assert_that(
+    dplyr::between(alpha, 0, 1),
+    msg = "`alpha` must be a numeric value between 0 and 1."
+  )
+
   model <- object$model
   S <- rlang::sym(object$study_col)
   W <- rlang::sym(object$treatment_col)
   Y <- rlang::sym(object$outcome)
+  K <- model %>%
+    dplyr::distinct(!!S) %>%
+    dplyr::pull()
+
+  assertthat::assert_that(
+    length(K) > 2,
+    msg = "Insufficient degrees of freedom; original model must include at least 3 studies."
+  )
 
   required_colnames <- model %>%
     dplyr::select(!!W, !!!rlang::syms(object$covariate_col)) %>%
@@ -72,19 +95,15 @@ predict.cate <- function(object,
 
   assertthat::assert_that(
     all(required_colnames %in% colnames(newdata_tbl)),
-    msg = glue::glue("New data must include same treatment, outcome, and covariate columns used \\
+    msg = glue::glue("New data must include same treatment and covariate columns used \\
                      to fit original model")
   )
 
   original_colnames <- setdiff(colnames(newdata_tbl), as.character(S))
 
-  K <- model %>%
-    dplyr::distinct(!!S) %>%
-    nrow()
-
   newdata <- newdata_tbl %>%
-    dplyr::slice(rep(1:n(), each = K)) %>%
-    dplyr::mutate(!!S := rep(1:K, times = nrow(newdata_tbl)))
+    dplyr::slice(rep(1:n(), each = length(K))) %>%
+    dplyr::mutate(!!S := rep(K, times = nrow(newdata_tbl)))
 
   newfeat <- newdata %>%
     {
@@ -145,7 +164,11 @@ predict.cate <- function(object,
     dplyr::mutate(var_tot = .data$var_within + .data$var_between,
                   sig = sqrt(.data$var_tot),
                   lower = .data$mean_tau_predicted - qt(1 - alpha/2, .data$n_K - 2) * .data$sig,
-                  upper = .data$mean_tau_predicted + qt(1 - alpha/2, .data$n_K - 2) * .data$sig)
+                  upper = .data$mean_tau_predicted + qt(1 - alpha/2, .data$n_K - 2) * .data$sig) %>%
+    dplyr::select(dplyr::all_of(original_colnames),
+                  tau_predicted = .data$mean_tau_predicted,
+                  ci_lower = .data$lower,
+                  ci_upper = .data$upper)
 
   newdata_tbl %>%
     dplyr::left_join(cis, by = original_colnames)
