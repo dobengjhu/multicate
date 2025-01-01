@@ -54,7 +54,7 @@ predict.cate <- function(cate_obj,
 
   assertthat::assert_that(
     cate_obj$aggregation_method == "studyindicator",
-    msg = "Aggregation method must be 'studyindicator'."
+    msg = "`predict_cate()` does not currently support `aggregation_method` = 'ensembleforest'."
   )
 
   model <- cate_obj$model
