@@ -50,6 +50,7 @@ assert_column_class <- function(table_object,
     msg = glue::glue(
       "{column_name} does not possess one of the following classes: {paste(column_class,
       collapse = ' | ')}"
+
     )
   )
 }

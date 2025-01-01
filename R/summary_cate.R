@@ -22,9 +22,7 @@
 #'
 #' @example inst/examples/example-summary_cate.R
 #' @export
-summary.cate <- function(object,
-                         tauhat_column = "tau_hat",
-                         ...) {
+summary.cate <- function(object) {
   assertthat::assert_that(
     "cate" %in% class(object),
     msg = "Object must be of class cate"
@@ -39,7 +37,7 @@ summary.cate <- function(object,
     object$estimation_method %in% c("causalforest", "slearner"),
     msg = "Estimation method must be 'causalforest' or 'slearner'."
   )
-
+  
   if (object$aggregation_method == "ensembleforest") {
     assert_column_names_exist(object$model, tauhat_column)
   }

@@ -140,7 +140,7 @@ plot.cate <- function(x,
 
 #' Plot Variable Treatment Effect
 #'
-#'#' @details
+#' @details
 #' This function plots the value of the selected covariate for each observation in the dataset
 #' against the value of tau_hat for the variable. This is what the findings mean... TODO
 #'

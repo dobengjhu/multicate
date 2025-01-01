@@ -45,6 +45,7 @@
 #'
 #' @return A tbl including all columns and data from `newdata_tbl`, with additional columns
 #' including a mean predicted CATE and associated 100(1 - \eqn{\alpha})% prediction interval.
+#' @export
 #'
 #' @example inst/examples/example-predict_cate.R
 #' @export
@@ -55,7 +56,7 @@ predict.cate <- function(object,
     inherits(object, "cate"),
     msg = "use only with \"cate\" objects"
   )
-
+  
   assertthat::assert_that(
     any(class(newdata_tbl) %in% c("tbl", "data.frame")),
     msg = "newdata_tbl` must be a tibble or data.frame."
