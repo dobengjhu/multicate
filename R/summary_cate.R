@@ -85,6 +85,8 @@ summary.cate <- function(object,
 #'
 #' @param x list. An object of class `summary.cate`.
 #' @param ... Additional arguments passed to or from other methods.
+#'
+#' @export
 print.summary.cate <- function(x,
                                ...) {
   dots <- list(...)
