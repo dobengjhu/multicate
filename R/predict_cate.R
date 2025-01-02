@@ -42,6 +42,7 @@
 #'  tbl. Note that only two treatments can be considered and treatment must be coded as 0/1
 #'  (numeric).
 #' @param alpha numeric. Significance level for confidence intervals. Defaults to 0.05 for 95% CIs.
+#' @param ... Additional arguments passed to or from other methods.
 #'
 #' @return A tbl including all columns and data from `newdata_tbl`, with additional columns
 #' including a mean predicted CATE and associated 100(1 - \eqn{\alpha})% prediction interval.
@@ -51,12 +52,13 @@
 #' @export
 predict.cate <- function(object,
                          newdata_tbl,
-                         alpha = 0.05) {
+                         alpha = 0.05,
+                         ...) {
   assertthat::assert_that(
     inherits(object, "cate"),
     msg = "use only with \"cate\" objects"
   )
-  
+
   assertthat::assert_that(
     any(class(newdata_tbl) %in% c("tbl", "data.frame")),
     msg = "newdata_tbl` must be a tibble or data.frame."

@@ -12,12 +12,12 @@
 \arguments{
 \item{object}{list. An object of class "cate", usually a result of a call to \link{estimate_cate}.}
 
+\item{tauhat_column}{string. When \code{aggregation_method} is "ensembleforest", name of the column in
+\code{object$model} that has the estimated CATEs. Default is "tau_hat".}
+
 \item{...}{Additional arguments passed to or from other methods.}
 
 \item{x}{list. An object of class \code{summary.cate}.}
-
-\item{tauhat_col}{string. When \code{aggregation_method} is "ensembleforest", name of the column in
-\code{object$model} that has the estimated CATEs. Default is "tau_hat".}
 }
 \value{
 A list of summary statistics and tables based on the information given in \code{object},

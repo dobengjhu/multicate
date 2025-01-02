@@ -14,12 +14,14 @@
 #' @param which_plot numeric vector. A vector indicating which plots should be generated.
 #' @param ask logical. When TRUE, the user is asked before each plot, see
 #'  \link[graphics:par]{par(ask = .)}.
+#' @param ... Additional arguments passed to or from other methods.
 #'
 #' @example inst/examples/example-plot_cate.R
 #' @export
 plot.cate <- function(x,
                       which_plot = 1:5,
-                      ask = TRUE) {
+                      ask = TRUE,
+                      ...) {
   assertthat::assert_that(
     inherits(x, "cate"),
     msg = "use only with \"cate\" objects"

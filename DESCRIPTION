@@ -35,7 +35,8 @@ Imports:
     rpart,
     rpart.plot,
     stats,
-    tibble
+    tibble,
+    tidyr
 Depends: 
     R (>= 3.5)
 LazyData: true
