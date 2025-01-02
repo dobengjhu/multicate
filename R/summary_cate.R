@@ -1,7 +1,8 @@
 #' Summarizing CATE Model Fits
 #'
+#' @importFrom stats sd median
 #' @param object list. An object of class "cate", usually a result of a call to \link{estimate_cate}.
-#' @param tauhat_col string. When `aggregation_method` is "ensembleforest", name of the column in
+#' @param tauhat_column string. When `aggregation_method` is "ensembleforest", name of the column in
 #'  `object$model` that has the estimated CATEs. Default is "tau_hat".
 #' @param ... Additional arguments passed to or from other methods.
 #'
@@ -22,22 +23,14 @@
 #'
 #' @example inst/examples/example-summary_cate.R
 #' @export
-summary.cate <- function(object) {
+summary.cate <- function(object,
+                         tauhat_column = "tau_hat",
+                         ...) {
   assertthat::assert_that(
     "cate" %in% class(object),
     msg = "Object must be of class cate"
   )
 
-  assertthat::assert_that(
-    "estimation_method" %in% names(object),
-    msg = "cate object must include an `estimation_method` element"
-  )
-
-  assertthat::assert_that(
-    object$estimation_method %in% c("causalforest", "slearner"),
-    msg = "Estimation method must be 'causalforest' or 'slearner'."
-  )
-  
   if (object$aggregation_method == "ensembleforest") {
     assert_column_names_exist(object$model, tauhat_column)
   }
@@ -69,17 +62,17 @@ summary.cate <- function(object) {
   names(summary_list$ate) <- c("Estimate", "Std. Error")
 
   summary_list$vi_table <- object$var_importance %>%
-    dplyr::arrange(desc(importance)) %>%
-    tidyr::pivot_wider(names_from = variable,
-                       values_from = importance) %>%
+    dplyr::arrange(dplyr::desc(.data$importance)) %>%
+    tidyr::pivot_wider(names_from = "variable",
+                       values_from = "importance") %>%
     as.matrix()
   rownames(summary_list$vi_table) <- "Value"
 
   summary_list$studycate <- object$model %>%
     dplyr::group_by(!!rlang::sym(object$study_col)) %>%
-    dplyr::summarise(`Minimum CATE` = min(tau_hat),
-                     `Median CATE` = median(tau_hat),
-                     `Maximum CATE` = max(tau_hat)) %>%
+    dplyr::summarise(`Minimum CATE` = min(.data$tau_hat),
+                     `Median CATE` = median(.data$tau_hat),
+                     `Maximum CATE` = max(.data$tau_hat)) %>%
     dplyr::ungroup() %>%
     tibble::column_to_rownames(object$study_col) %>%
     as.matrix()

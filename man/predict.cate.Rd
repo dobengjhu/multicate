@@ -4,7 +4,7 @@
 \alias{predict.cate}
 \title{Predict Heterogeneous Treatment Effects Based on Estimated CATEs}
 \usage{
-\method{predict}{cate}(object, newdata_tbl, alpha = 0.05)
+\method{predict}{cate}(object, newdata_tbl, alpha = 0.05, ...)
 }
 \arguments{
 \item{object}{list. An object resulting from \link{estimate_cate}.}
@@ -15,6 +15,8 @@ tbl. Note that only two treatments can be considered and treatment must be coded
 (numeric).}
 
 \item{alpha}{numeric. Significance level for confidence intervals. Defaults to 0.05 for 95\% CIs.}
+
+\item{...}{Additional arguments passed to or from other methods.}
 }
 \value{
 A tbl including all columns and data from \code{newdata_tbl}, with additional columns

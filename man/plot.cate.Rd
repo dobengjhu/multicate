@@ -4,7 +4,7 @@
 \alias{plot.cate}
 \title{Plot Diagnostics for a CATE Object}
 \usage{
-\method{plot}{cate}(x, which_plot = 1:5, ask = TRUE)
+\method{plot}{cate}(x, which_plot = 1:5, ask = TRUE, ...)
 }
 \arguments{
 \item{x}{list. An object resulting from \link{estimate_cate}.}
@@ -13,6 +13,8 @@
 
 \item{ask}{logical. When TRUE, the user is asked before each plot, see
 \link[graphics:par]{par(ask = .)}.}
+
+\item{...}{Additional arguments passed to or from other methods.}
 }
 \description{
 Five plots (selectable by \code{which_plot}) currently available: a histogram of estimated conditional
