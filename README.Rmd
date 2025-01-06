@@ -93,7 +93,7 @@ The plot_vteffect() function can also be called to plot any covariate as the X a
 
 Finally, suppose the researcher wants to use this model to predict the CATE in a target population of interest. The researcher can use the predict.cate() functionality to do so (see Details for more information).
 
-```{r, echo = FALSE, include = FALSE}
+```{r}
 new_dat <- tibble::tribble(
   ~tx, ~var1,   ~var2,   ~var3,    ~var4,   ~var5,   ~response,
   0,   -0.728,  1.66,    -0.213,   -0.0621, 0.252,   1.26,
