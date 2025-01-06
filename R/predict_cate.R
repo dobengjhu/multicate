@@ -170,8 +170,8 @@ predict.cate <- function(object,
                   upper = .data$mean_tau_predicted + qt(1 - alpha/2, .data$n_K - 2) * .data$sig) %>%
     dplyr::select(dplyr::all_of(original_colnames),
                   tau_predicted = "mean_tau_predicted",
-                  ci_lower = "lower",
-                  ci_upper = "upper")
+                  pi_lower = "lower",
+                  pi_upper = "upper")
 
   newdata_tbl %>%
     dplyr::left_join(cis, by = original_colnames)

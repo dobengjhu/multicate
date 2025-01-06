@@ -56,8 +56,8 @@ new_dummy_tbl <- tibble::tribble(
 
 expected_tbl_names <- c(colnames(new_dummy_tbl),
                         "tau_predicted",
-                        "ci_lower",
-                        "ci_upper"
+                        "pi_lower",
+                        "pi_upper"
 )
 
 test_that("predict.cate returns correct tbl structure with valid inputs", {
@@ -85,8 +85,8 @@ test_that("predict.cate returns correct tbl structure with valid inputs", {
 
   expect_s3_class(result_sl, "tbl")
   expect_true(all(expected_tbl_names %in% colnames(result_sl)))
-  expect_true(all(result_sl$ci_lower < result_sl_alpha$ci_lower))
-  expect_true(all(result_sl$ci_upper > result_sl_alpha$ci_upper))
+  expect_true(all(result_sl$pi_lower < result_sl_alpha$pi_lower))
+  expect_true(all(result_sl$pi_upper > result_sl_alpha$pi_upper))
 })
 
 test_that("predict.cate raises error for invalid treatment and/or response values", {
