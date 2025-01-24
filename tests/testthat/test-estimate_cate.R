@@ -99,6 +99,31 @@ test_that("estimate_cate returns correct structure with valid inputs (causalfore
   expect_true("tau_hat" %in% colnames(result$model))
 })
 
+test_that("estimate_cate returns correct structure with valid inputs (causalforest / studyspecific)", {
+  result <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "causalforest",
+    aggregation_method = "studyspecific",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response"
+  )
+
+  expect_s3_class(result, "cate")
+  expect_named(result, expected_object_names)
+  expect_identical(result$estimation_method, "causalforest")
+  expect_identical(result$aggregation_method, "studyspecific")
+  expect_identical(result$study_col, "studyid")
+  expect_identical(result$treatment_col, "tx")
+  expect_identical(result$outcome_col, "response")
+  expect_identical(result$covariate_col, covariate_colnames)
+  expect_true("tau_hat" %in% colnames(result$model))
+  expect_identical(class(result$var_importance), "list")
+  expect_true(length(result$var_importance) == 3)
+  expect_identical(class(result$estimation_object), "list")
+  expect_true(length(result$estimation_object) == 3)
+})
+
 test_that("estimate_cate returns correct structure with valid inputs (slearner / studyindicator)", {
   result <- estimate_cate(
     trial_tbl = dummy_tbl,
@@ -140,6 +165,31 @@ test_that("estimate_cate returns correct structure with valid inputs (slearner /
   expect_identical(result$outcome_col, "response")
   expect_identical(result$covariate_col, covariate_colnames)
   expect_true("tau_hat" %in% colnames(result$model))
+})
+
+test_that("estimate_cate returns correct structure with valid inputs (slearner / studyspecific)", {
+  result <- estimate_cate(
+    trial_tbl = dummy_tbl,
+    estimation_method = "slearner",
+    aggregation_method = "studyspecific",
+    study_col = "studyid",
+    treatment_col = "tx",
+    outcome_col = "response"
+  )
+
+  expect_s3_class(result, "cate")
+  expect_named(result, expected_object_names)
+  expect_identical(result$estimation_method, "slearner")
+  expect_identical(result$aggregation_method, "studyspecific")
+  expect_identical(result$study_col, "studyid")
+  expect_identical(result$treatment_col, "tx")
+  expect_identical(result$outcome_col, "response")
+  expect_identical(result$covariate_col, covariate_colnames)
+  expect_true("tau_hat" %in% colnames(result$model))
+  expect_identical(class(result$var_importance), "list")
+  expect_true(length(result$var_importance) == 3)
+  expect_identical(class(result$estimation_object), "list")
+  expect_true(length(result$estimation_object) == 3)
 })
 
 test_that("estimate_cate raises error for invalid treatment and/or response values", {
