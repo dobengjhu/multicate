@@ -56,6 +56,8 @@
 #'    includes them as covariates in the single-study method selected in `estimation_method`.
 #'    - "ensembleforest": Fit the `estimation_method` within each study, apply each model to all
 #'    individuals across all studies, then fit ensemble random forest to augmented data.
+#'    - "studyspecific": Fit the `estimation_method` separately for each study and report out
+#'    study-specific estimates.
 #' @param study_col string. Name of the column in `trial_tbl` with study ID.
 #' @param treatment_col string. Name of the column in `trial_tbl` with treatment assignment.
 #' @param outcome_col string. Name of the column in `trial_tbl` with outcome values.
@@ -86,14 +88,17 @@
 #'  * `treatment_col`: name of treatment column
 #'  * `outcome_col`: name of outcome column
 #'  * `covariate_col`: name(s) of covariate columns
-#'  * `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest}
+#'  * `estimation_object`: object(s) from \link[grf:causal_forest]{grf::causal_forest}
 #'  or \link[dbarts:bart]{dbarts::bart}, according to the `estimation_method` selected.
 #'
 #' @example inst/examples/example-estimate_cate.R
 #' @export
 estimate_cate <- function(trial_tbl,
-                          estimation_method = c("slearner", "causalforest"),
-                          aggregation_method = c("studyindicator", "ensembleforest"),
+                          estimation_method = c("slearner",
+                                                "causalforest"),
+                          aggregation_method = c("studyindicator",
+                                                 "ensembleforest",
+                                                 "studyspecific"),
                           study_col,
                           treatment_col,
                           outcome_col,
