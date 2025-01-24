@@ -132,43 +132,77 @@ generate_tau.studyspecific_args <- function(named_args,
         return(list(cf_fit = cf_fit,
                     var_import = var_import))
       }) %>%
-      purrr::list_transpose()
+      purrr::list_transpose() %>%
+      purrr::map(
+        purrr::set_names,
+        study_val
+      )
 
     tau_hat <- causalforest_list$cf_fit %>%
-      purrr::map(~ as.numeric(.x$predictions)) %>%
+      purrr::map(
+        ~ as.numeric(.x$predictions)
+      ) %>%
       purrr::list_c()
 
     variance_estimates <- causalforest_list$cf_fit %>%
-      purrr::map(~ predict(.x,
-                           estimate.variance = TRUE)$variance.estimates) %>%
+      purrr::map(
+        ~ predict(.x,
+                  estimate.variance = TRUE)$variance.estimates
+      ) %>%
       purrr::list_c()
 
     return(list(tau_hat = tau_hat,
                 variance_estimates = variance_estimates,
-                var_importance = causalforest_list$var_import %>% purrr::set_names(study_val),
-                fit_object = causalforest_list$cf_fit %>% purrr::set_names(study_val)))
+                var_importance = causalforest_list$var_import,
+                fit_object = causalforest_list$cf_fit))
   } else if (named_args$estimation_method == "slearner") {
-    treatment <- rlang::sym(named_args$treatment_col)
-    extra_args <- list(...)
-    relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]
-    relevant_args[["keeptrees"]] <- TRUE
+    slearner_list <- purrr::map(
+      .x = tau_args_list,
+      .f = function(tau_args) {
+        treatment <- rlang::sym(named_args$treatment_col)
+        extra_args <- list(...)
+        relevant_args <- extra_args[names(extra_args) %in% names(formals(dbarts::bart))]
+        relevant_args[["keeptrees"]] <- TRUE
+        relevant_args[["verbose"]] <- FALSE
 
-    sbart_fit <- do.call(dbarts::bart,
-                         c(list(x.train = tau_args$feature_tbl %>%
-                                  dplyr::mutate(!!treatment := tau_args$treatment_vec),
-                                y.train = tau_args$outcome_vec,
-                                x.test = tau_args$feature_tbl %>%
-                                  dplyr::mutate(!!treatment := as.numeric(tau_args$treatment_vec == 0))),
-                           relevant_args))
-    sbart_estimates <- estimate_sbart_tau(sbart_fit$yhat.train,
-                                          sbart_fit$yhat.test,
-                                          tau_args$treatment_vec)
+        sbart_fit <- do.call(dbarts::bart,
+                             c(list(x.train = tau_args$feature_tbl %>%
+                                      dplyr::mutate(!!treatment := tau_args$treatment_vec),
+                                    y.train = tau_args$outcome_vec,
+                                    x.test = tau_args$feature_tbl %>%
+                                      dplyr::mutate(!!treatment := as.numeric(tau_args$treatment_vec == 0))),
+                               relevant_args))
 
-    return(list(tau_hat = sbart_estimates$means_cate,
-                variance_estimates = sbart_estimates$vars_cate,
-                var_importance = dplyr::rename(tibble::enframe(colMeans(sbart_fit$varcount)),
-                                               variable = "name",
-                                               importance = "value"),
-                fit_object = sbart_fit))
+        sbart_estimates <- estimate_sbart_tau(sbart_fit$yhat.train,
+                                              sbart_fit$yhat.test,
+                                              tau_args$treatment_vec)
+
+        var_import = dplyr::rename(tibble::enframe(colMeans(sbart_fit$varcount)),
+                                       variable = "name",
+                                       importance = "value")
+
+        return(list(sbart_fit = sbart_fit,
+                    sbart_estimates = sbart_estimates,
+                    var_import = var_import))
+      }
+    ) %>%
+      purrr::list_transpose() %>%
+      purrr::map(
+        purrr::set_names,
+        study_val
+      )
+
+    tau_hat <- slearner_list$sbart_estimates %>%
+      purrr::map("means_cate") %>%
+      purrr::list_c()
+
+    variance_estimates <- slearner_list$sbart_estimates %>%
+      purrr::map("vars_cate") %>%
+      purrr::list_c()
+
+    return(list(tau_hat = tau_hat,
+                variance_estimates = variance_estimates,
+                var_importance = slearner_list$var_import,
+                fit_object = slearner_list$sbart_fit))
   }
 }
