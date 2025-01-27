@@ -10,14 +10,15 @@
 #' including
 #' * `estimation method` : The estimation method used to estimate the CATEs.
 #' * `aggregation method` : The aggregation method used to estimate the CATEs.
-#' * `vi_table` : The variable importance table.
+#' * `vi_table` : The variable importance table. When the `aggregation_method` is "studyspecific",
+#' a matrix of variable importance values based on the study-specific models is provided.
 #' * `ate` : The overall average treatment effect across all patients and all studies. When the
 #' `estimation_method` is "causalforest", this is estimated using the
 #' \link[grf:average_treatment_effect]{grf::average_treatment_effect} function. When the
 #' `estimation_method` is "slearner", this is estimated by averaging the treatment effect across
 #' patients, accounting for counterfactual assignments. When the `aggregation_method` is
-#' "ensembleforest", a simple arithmetic mean of estimated CATEs is provided and the standard
-#' error is `NA`.
+#' "ensembleforest" or "studyspecific", a simple arithmetic mean of estimated CATEs is provided and
+#' the standard error is `NA`.
 #' * `studycate` : A table of the minimum, median, and maximum CATE values for patients from each
 #' study included in the model.
 #'
@@ -69,7 +70,7 @@ summary.cate <- function(object,
     study_names <- names(object$var_importance)
 
     summary_list$vi_table <- summary_list$vi_table %>%
-      dplyr::select(-variable) %>%
+      dplyr::select(-.data$variable) %>%
       as.matrix()
 
     rownames(summary_list$vi_table) <- variable_names

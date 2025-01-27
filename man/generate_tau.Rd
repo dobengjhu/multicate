@@ -4,6 +4,7 @@
 \alias{generate_tau}
 \alias{generate_tau.studyindicator_args}
 \alias{generate_tau.ensembleforest_args}
+\alias{generate_tau.studyspecific_args}
 \title{Generate CATE Estimates Using Single-Study Approach with Study Indicator}
 \usage{
 generate_tau(named_args, ...)
@@ -11,6 +12,8 @@ generate_tau(named_args, ...)
 \method{generate_tau}{studyindicator_args}(named_args, ...)
 
 \method{generate_tau}{ensembleforest_args}(named_args, ...)
+
+\method{generate_tau}{studyspecific_args}(named_args, ...)
 }
 \arguments{
 \item{named_args}{list. A list of pre-specified argument values from \link{estimate_cate}.}

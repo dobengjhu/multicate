@@ -7,7 +7,7 @@
 estimate_cate(
   trial_tbl,
   estimation_method = c("slearner", "causalforest"),
-  aggregation_method = c("studyindicator", "ensembleforest"),
+  aggregation_method = c("studyindicator", "ensembleforest", "studyspecific"),
   study_col,
   treatment_col,
   outcome_col,
@@ -32,6 +32,8 @@ are:
 includes them as covariates in the single-study method selected in \code{estimation_method}.
 \item "ensembleforest": Fit the \code{estimation_method} within each study, apply each model to all
 individuals across all studies, then fit ensemble random forest to augmented data.
+\item "studyspecific": Fit the \code{estimation_method} separately for each study and report out
+study-specific estimates.
 }}
 
 \item{study_col}{string. Name of the column in \code{trial_tbl} with study ID.}
@@ -79,7 +81,7 @@ An object of class "cate" is a list containing the following elements:
 \item \code{treatment_col}: name of treatment column
 \item \code{outcome_col}: name of outcome column
 \item \code{covariate_col}: name(s) of covariate columns
-\item \code{estimation_object}: object from \link[grf:causal_forest]{grf::causal_forest}
+\item \code{estimation_object}: object(s) from \link[grf:causal_forest]{grf::causal_forest}
 or \link[dbarts:bart]{dbarts::bart}, according to the \code{estimation_method} selected.
 }
 }
