@@ -26,6 +26,7 @@
 summary.cate <- function(object,
                          tauhat_column = "tau_hat",
                          ...) {
+
   assertthat::assert_that(
     "cate" %in% class(object),
     msg = "Object must be of class cate"
@@ -39,7 +40,7 @@ summary.cate <- function(object,
   summary_list$estimation_method <- object$estimation_method
   summary_list$aggregation_method <- object$aggregation_method
 
-  if (object$aggregation_method == "ensembleforest") {
+  if (object$aggregation_method %in% c("ensembleforest", "studyspecific")) {
     mean_tau_hat <- object$model %>%
       dplyr::summarise(mean_tau_hat = mean(!!rlang::sym(tauhat_column))) %>%
       dplyr::pull()
@@ -61,12 +62,25 @@ summary.cate <- function(object,
   }
   names(summary_list$ate) <- c("Estimate", "Std. Error")
 
-  summary_list$vi_table <- object$var_importance %>%
-    dplyr::arrange(dplyr::desc(.data$importance)) %>%
-    tidyr::pivot_wider(names_from = "variable",
-                       values_from = "importance") %>%
-    as.matrix()
-  rownames(summary_list$vi_table) <- "Value"
+  if (object$aggregation_method == "studyspecific") {
+    summary_list$vi_table <- object$var_importance %>%
+      purrr::reduce(dplyr::left_join, by = "variable")
+    variable_names <- summary_list$vi_table$variable
+    study_names <- names(object$var_importance)
+
+    summary_list$vi_table <- summary_list$vi_table %>%
+      dplyr::select(-variable) %>%
+      as.matrix()
+
+    rownames(summary_list$vi_table) <- variable_names
+    colnames(summary_list$vi_table) <- study_names
+  } else {
+    summary_list$vi_table <- object$var_importance %>%
+      tidyr::pivot_wider(names_from = "variable",
+                         values_from = "importance") %>%
+      as.matrix()
+    rownames(summary_list$vi_table) <- "Value"
+  }
 
   summary_list$studycate <- object$model %>%
     dplyr::group_by(!!rlang::sym(object$study_col)) %>%
@@ -76,6 +90,10 @@ summary.cate <- function(object,
     dplyr::ungroup() %>%
     tibble::column_to_rownames(object$study_col) %>%
     as.matrix()
+
+  if (object$aggregation_method == "studyspecific") {
+    rownames(summary_list$studycate)
+  }
 
   class(summary_list) <- "summary.cate"
   summary_list
