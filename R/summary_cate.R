@@ -84,17 +84,24 @@ summary.cate <- function(object,
   }
 
   summary_list$studycate <- object$model %>%
-    dplyr::group_by(!!rlang::sym(object$study_col)) %>%
+    {
+      if (!is.na(object$study_col)) {
+        dplyr::group_by(., !!rlang::sym(object$study_col))
+      } else {
+        .
+      }
+    } %>%
     dplyr::summarise(`Minimum CATE` = min(.data$tau_hat),
                      `Median CATE` = median(.data$tau_hat),
                      `Maximum CATE` = max(.data$tau_hat)) %>%
-    dplyr::ungroup() %>%
-    tibble::column_to_rownames(object$study_col) %>%
+    {
+      if (!is.na(object$study_col)) {
+        tibble::column_to_rownames(., object$study_col)
+      } else {
+        .
+      }
+    } %>%
     as.matrix()
-
-  if (object$aggregation_method == "studyspecific") {
-    rownames(summary_list$studycate)
-  }
 
   class(summary_list) <- "summary.cate"
   summary_list

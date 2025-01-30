@@ -22,6 +22,7 @@ plot.cate <- function(x,
                       which_plot = 1:5,
                       ask = TRUE,
                       ...) {
+
   assertthat::assert_that(
     inherits(x, "cate"),
     msg = "use only with \"cate\" objects"
@@ -35,6 +36,7 @@ plot.cate <- function(x,
 
   model <- x$model
   covariate_col <- x$covariate_col
+  estimation_object <- x$estimation_object
 
   if (3 %in% which_plot) {
     if (!("variance_estimates" %in% colnames(model))) {
@@ -44,7 +46,7 @@ plot.cate <- function(x,
   }
 
   if (4 %in% which_plot) {
-    if (!("causal_forest" %in% class(x$estimation_object))) {
+    if (!("causal_forest" %in% c(class(estimation_object), class(estimation_object[[1]])))) {
       warning("Object of class 'causal_forest' required for best linear projection figure.")
       which_plot <- setdiff(which_plot, 4)
     }
@@ -67,7 +69,12 @@ plot.cate <- function(x,
 
   if (show[2]) {
     study_col <- x$study_col
-    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(study_col), y = .data$tau_hat)) +
+    if (!is.na(study_col)) {
+      p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(study_col), y = .data$tau_hat))
+    } else {
+      p <- ggplot2::ggplot(model, ggplot2::aes(x = 1, y = .data$tau_hat))
+    }
+    p <- p +
       ggplot2::geom_boxplot() +
       ggplot2::xlab("Study ID") +
       ggplot2::ylab("CATE Estimate")
@@ -100,12 +107,27 @@ plot.cate <- function(x,
 
   if (show[4]) {
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
-    feat <- model.matrix(fm, x$model)
-    blpList <- grf::best_linear_projection(x$estimation_object, A = feat)
-    blps <- jtools::plot_summs(blpList,
-                               point.shape = FALSE)
-    dfg <- blps$data
-    dfg$study <- dfg$model
+
+    if (x$aggregation_method == "studyspecific") {
+      dfg <- purrr::map2_df(
+        .x = estimation_object,
+        .y = names(estimation_object),
+        .f = function(.x, .y) {
+          feat <- model.matrix(fm, model %>% filter(!!rlang::sym(x$study_col) == .y))
+          blpList <- grf::best_linear_projection(.x, A = feat)
+          blps <- jtools::plot_summs(blpList, point.shape = FALSE)
+          blps$data %>%
+            mutate(study = .y)
+        }
+      )
+    } else {
+      feat <- model.matrix(fm, model)
+      blpList <- grf::best_linear_projection(estimation_object, A = feat)
+      blps <- jtools::plot_summs(blpList,
+                                 point.shape = FALSE)
+      dfg <- blps$data
+      dfg$study <- dfg$model
+    }
 
     p <- ggplot2::ggplot(dfg,
                          ggplot2::aes(x = .data$study,
@@ -122,6 +144,7 @@ plot.cate <- function(x,
                                             ymax = .data$conf.high),
                                alpha = 0.85) +
       ggplot2::ggtitle("CATE Best Linear Projection by Covariate") +
+      ggplot2::facet_wrap(~ study, scales = "free", ncol = 2) +
       theme_MH +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -146,14 +169,15 @@ plot.cate <- function(x,
 #' This function plots the value of the selected covariate for each observation in the dataset
 #' against the value of tau_hat for the variable. This is what the findings mean... TODO
 #'
-#' @param object list. An object resulting from \link{estimate_cate}.
+#' @param x list. An object resulting from \link{estimate_cate}.
 #' @param covariate_name string. Name of a covariate included in dataset used to estimate tau_hat.
 #'
 #' @example inst/examples/example-plot_vteffect.R
 #' @export
-plot_vteffect <- function(object, covariate_name) {
+plot_vteffect <- function(x, covariate_name) {
+
   assertthat::assert_that(
-    inherits(object, "cate"),
+    inherits(x, "cate"),
     msg = "use only with \"cate\" objects"
   )
 
@@ -162,14 +186,20 @@ plot_vteffect <- function(object, covariate_name) {
     msg = "`covariate_name` must be a string."
   )
 
-  model <- object$model
-  study_col <- object$study_col
+  model <- x$model
+  study_col <- x$study_col
 
   assert_column_names_exist(model, covariate_name)
 
-  ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
+  if (!is.na(study_col)) {
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
                                         y = .data$tau_hat,
-                                        color = !!rlang::sym(study_col))) +
+                                        color = !!rlang::sym(study_col)))
+  } else {
+    p <- ggplot2::ggplot(model, ggplot2::aes(x = !!rlang::sym(covariate_name),
+                                             y = .data$tau_hat))
+  }
+  p +
     ggplot2::geom_point() +
     ggplot2::xlab(covariate_name) +
     ggplot2::ylab("CATE Estimate")
