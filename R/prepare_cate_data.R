@@ -31,6 +31,8 @@ prepare_cate_data <- function(named_args,
       } else if (aggregation_method == "ensembleforest") {
         dplyr::select(.,
                       -!!rlang::sym(named_args$study_col))
+      } else if (aggregation_method == "studyspecific") {
+        .
       }
     }
 

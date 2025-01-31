@@ -25,14 +25,15 @@ including
 \itemize{
 \item \verb{estimation method} : The estimation method used to estimate the CATEs.
 \item \verb{aggregation method} : The aggregation method used to estimate the CATEs.
-\item \code{vi_table} : The variable importance table.
+\item \code{vi_table} : The variable importance table. When the \code{aggregation_method} is "studyspecific",
+a matrix of variable importance values based on the study-specific models is provided.
 \item \code{ate} : The overall average treatment effect across all patients and all studies. When the
 \code{estimation_method} is "causalforest", this is estimated using the
 \link[grf:average_treatment_effect]{grf::average_treatment_effect} function. When the
 \code{estimation_method} is "slearner", this is estimated by averaging the treatment effect across
 patients, accounting for counterfactual assignments. When the \code{aggregation_method} is
-"ensembleforest", a simple arithmetic mean of estimated CATEs is provided and the standard
-error is \code{NA}.
+"ensembleforest" or "studyspecific", a simple arithmetic mean of estimated CATEs is provided and
+the standard error is \code{NA}.
 \item \code{studycate} : A table of the minimum, median, and maximum CATE values for patients from each
 study included in the model.
 }
