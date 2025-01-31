@@ -113,11 +113,11 @@ plot.cate <- function(x,
         .x = estimation_object,
         .y = names(estimation_object),
         .f = function(.x, .y) {
-          feat <- model.matrix(fm, model %>% filter(!!rlang::sym(x$study_col) == .y))
+          feat <- model.matrix(fm, model %>% dplyr::filter(!!rlang::sym(x$study_col) == .y))
           blpList <- grf::best_linear_projection(.x, A = feat)
           blps <- jtools::plot_summs(blpList, point.shape = FALSE)
           blps$data %>%
-            mutate(study = .y)
+            dplyr::mutate(study = .y)
         }
       )
     } else {
