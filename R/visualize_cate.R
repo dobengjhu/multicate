@@ -108,19 +108,21 @@ plot.cate <- function(x,
   if (show[4]) {
     fm <- as.formula(paste("~ 1 + ", paste(covariate_col, collapse = "+")))
 
-    if (x$aggregation_method == "studyspecific") {
+    if (x$aggregation_method == "studyspecific" & !is.na(x$study_col)) {
       dfg <- purrr::map2_df(
         .x = estimation_object,
         .y = names(estimation_object),
         .f = function(.x, .y) {
           feat <- model.matrix(fm, model %>% dplyr::filter(!!rlang::sym(x$study_col) == .y))
           blpList <- grf::best_linear_projection(.x, A = feat)
-          blps <- jtools::plot_summs(blpList, point.shape = FALSE)
+          blps <- jtools::plot_summs(blpList,
+                                     point.shape = FALSE)
           blps$data %>%
             dplyr::mutate(study = .y)
         }
       )
     } else {
+      if (is.na(x$study_col)) estimation_object <- estimation_object[[1]]
       feat <- model.matrix(fm, model)
       blpList <- grf::best_linear_projection(estimation_object, A = feat)
       blps <- jtools::plot_summs(blpList,

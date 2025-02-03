@@ -40,25 +40,21 @@ pak::pak("dobengjhu/multicate")
 
 ## Example
 
-A researcher is interested in estimating the CATE across 10 previously conducted trials that compared the same two treatments. The researcher has 5 covariates that could be potential effect moderators.
+A researcher is interested in estimating the CATE across 3 previously conducted trials that compared the same two treatments. The researcher has 5 covariates that could be potential effect moderators.
 
 ```{r}
 library(multicate)
 ```
 
-```{r, echo = FALSE, include = FALSE}
-dat <- dummy_tbl
-```
-
 ```{r}
-summary(dat)
+summary(dummy_tbl)
 ```
 
 One potential approach could be to use the estimate_cate() function with a causal forest with pooling with trial indicator (as outlined in Brantner et al., 2024). We will use this method, inputting our dataset, selecting our estimation and aggregation method, and highlighting columns to be used as our study indicator, treatment, outcome, and covariates.
 
 ```{r}
 set.seed(100)
-cate_mod <- estimate_cate(dat,
+cate_mod <- estimate_cate(dummy_tbl,
                           estimation_method = "causalforest",
                           aggregation_method = "studyindicator",
                           study_col = "studyid",
@@ -91,9 +87,17 @@ plot_vteffect(cate_mod, covariate_name = "var4")
 
 The plot_vteffect() function can also be called to plot any covariate as the X axis alongside CATE estimates in the Y axis. Points are automatically colored by study membership. This plot is a helpful visual to investigate how the CATE varies by a covariate of interest, as well as how heterogeneous the CATE is by study.
 
-Finally, suppose the researcher wants to use this model to predict the CATE in a target population of interest. The researcher can use the predict.cate() functionality to do so (see Details for more information).
+Suppose a primary goal for the researcher is to predict the CATE in a target population of interest. The researcher can use the predict.cate() functionality to do so (see Details for more information) after having estimated the CATE across studies. This functionality is currently built to require study-specific estimation (i.e., no pooling across studies in the estimate_cate() procedure).
 
 ```{r}
+cate_mod <- estimate_cate(dummy_tbl,
+                          estimation_method = "causalforest",
+                          aggregation_method = "studyspecific",
+                          study_col = "studyid",
+                          treatment_col = "tx",
+                          outcome_col = "response",
+                          covariate_col = c("var1", "var2", "var3", "var4", "var5"))
+
 new_dat <- tibble::tribble(
   ~tx, ~var1,   ~var2,   ~var3,    ~var4,   ~var5,   ~response,
   0,   -0.728,  1.66,    -0.213,   -0.0621, 0.252,   1.26,

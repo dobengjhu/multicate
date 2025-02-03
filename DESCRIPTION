@@ -29,6 +29,7 @@ Imports:
     glue,
     grf,
     jtools,
+    metafor,
     purrr,
     ranger,
     rlang,

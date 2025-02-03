@@ -15,7 +15,7 @@ new_dummy_tbl <- tibble::tribble(
 cate_object <- estimate_cate(
   trial_tbl = dummy_tbl,
   estimation_method = "causalforest",
-  aggregation_method = "studyindicator",
+  aggregation_method = "studyspecific",
   study_col = "studyid",
   treatment_col = "tx",
   outcome_col = "response"

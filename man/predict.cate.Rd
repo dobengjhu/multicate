@@ -23,26 +23,59 @@ A tbl including all columns and data from \code{newdata_tbl}, with additional co
 including a mean predicted CATE and associated 100(1 - \eqn{\alpha})\% prediction interval.
 }
 \description{
-\code{predict_cate} is used to produce a prediction of the conditional average treatment effect (CATE)
-based on a model built on multiple studies.
+\code{predict.cate} is used to produce a prediction of the conditional average treatment effect (CATE)
+based on models fit to data from multiple studies/sites.
 }
 \details{
-The predict function uses estimated CATEs from multiple studies (objects resulting from
+The predict function uses CATE models fit to multiple studies (objects resulting from
 \link{estimate_cate}) to form prediction intervals for CATEs in a new, target setting (e.g., a
-group of patients in an electronic health record system). This function leverages prediction
-interval techniques from meta-analysis by estimating the within-study and between-study variance
-of the CATEs for all covariate profiles (X) of interest in the target setting. The prediction
-interval for the CATE for covariate profile X in the target setting is of the form:
-\deqn{\hat{\tau}(\mathbf{X}^*) \pm \sqrt{var_{within} + var_{between}}}
-Where \eqn{\hat{\tau}(\mathbf{X}^*)} is the inverse variance-weighted average of the
-\eqn{\hat{\tau}(\mathbf{X}^*)} across studies, \eqn{t_{K-2}} is the t-statistic with K-2 degrees
-of freedom, var_within is the average of the variances of each \eqn{\hat{\tau}(\mathbf{X}^*)},
-and var_between is the variance of the set of \eqn{\hat{\tau}(\mathbf{X}^*)}. For more details,
-see Brantner et al., (2024).
+group of patients in an electronic health record system). This function leverages two-stage meta-
+analysis with prediction intervals for all covariate profiles (\eqn{\mathbf{X}^*}) of interest in
+the target setting.
 
-The predict function can only be run on \code{cate} objects with variance estimates available. As
-long as that criteria is met, any method used to estimate the CATEs across multiple studies can
-then be used to create prediction intervals using this approach.
+The first stage of the two-stage meta-analysis is completed by fitting models to each study individually
+to estimate the CATE per study using the \link{estimate_cate} function with
+the "studyspecific" aggregation method. From this first stage, we can obtain estimates of the CATE for a
+given covariate profile in the target setting in each study i: \eqn{\hat{\tau}_i(\mathbf{X}^*)}, as well as variance
+estimates of those CATEs.
+
+The second stage of the two-stage meta-analysis is replicated for every covariate profile
+\eqn{\mathbf{X}^*} of interest. In this stage, we fit a random effects meta-analysis under the
+distributional assumptions:
+
+\deqn{\hat{\tau}_i(\mathbf{X}^*) \sim
+N(\tau_i(\mathbf{X}^*),
+{s_i}^2(\mathbf{X}^*))}
+
+where \eqn{\hat{\tau}_i(\mathbf{X}^*)}
+is the estimated CATE for \eqn{\mathbf{X}^*} in study i,
+\eqn{\tau_i(\mathbf{X}^*)} is the true CATE for
+\eqn{\mathbf{X}^*} in study i, and
+\eqn{{s_i}^2(\mathbf{X}^*)} is the within-study variability estimate of the CATE for
+\eqn{\mathbf{X}^*}; and
+
+\deqn{\tau_i(\mathbf{X}^*) \sim N(\tau(\mathbf{X}^*), \theta^2(\mathbf{X}^*))}
+
+where \eqn{\tau_i(\mathbf{X}^*)}
+is the true average CATE for \eqn{\mathbf{X}^*} across all studies, and
+\eqn{\theta^2(\mathbf{X}^*)} is the between-study variance.
+
+From this two-stage meta-analysis, the prediction interval for the CATE for covariate profile
+\eqn{\mathbf{X}^*} in the target setting represents a range of potential values that the CATE
+may be in the new setting. This prediction interval is of the form:
+
+\deqn{\hat{\tau}(\mathbf{X}^*) \pm t_{K-2} \sqrt{SE(\hat{\tau}(\mathbf{X}^*)^2 +
+\hat{\theta}^2(\mathbf{X}^*)}}
+
+where \eqn{\hat{\tau}(\mathbf{X}^*)} is the inverse variance-weighted average of the
+\eqn{\hat{\tau}(\mathbf{X}^*)} across studies, \eqn{t_{K-2}} is the t-statistic with K-2 degrees
+of freedom (where K is the total number of studies), \eqn{SE(\hat{\tau}(\mathbf{X}^*)^2} is the
+estimated variance of \eqn{\hat{\tau}(\mathbf{X}^*)}, and \eqn{\hat{\theta}^2(\mathbf{X}^*)} is
+the estimated between-study variance, calculated using REML. For more details, see Brantner et
+al., (Under review) and Riley et al. (2021).
+
+The predict function can only be run on \code{cate} objects using the "studyspecific" aggregation
+method. Any estimation method (i.e., causal forest or S-learner with BART) can be used.
 
 The \code{newdata_tbl} can consist of any set of profiles for which the researcher would like to
 create prediction intervals. The assumption with this approach is that the profiles in the target
@@ -68,7 +101,7 @@ new_dummy_tbl <- tibble::tribble(
 cate_object <- estimate_cate(
   trial_tbl = dummy_tbl,
   estimation_method = "causalforest",
-  aggregation_method = "studyindicator",
+  aggregation_method = "studyspecific",
   study_col = "studyid",
   treatment_col = "tx",
   outcome_col = "response"
@@ -78,5 +111,8 @@ predict(cate_object, new_dummy_tbl)
 }
 \references{
 Brantner CL, Nguyen TQ, Parikh H, Zhao C, Hong H, Stuart EA. Precision mental health: Predicting
-heterogeneous treatment effects for depression through data integration. \emph{Arxiv}.
+heterogeneous treatment effects for depression through data integration. \emph{Under review.}
+
+Riley, RD, Debray TP, Morris TP, Jackson D. The Two-Stage Approach to IPD Meta-Analysis. In
+Individual Participant Data Meta-Analysis (pp 87-125). (2021)
 }

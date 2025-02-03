@@ -1,6 +1,6 @@
 dummy_cate_object_sl <- estimate_cate(trial_tbl = dummy_tbl,
                                       estimation_method = "slearner",
-                                      aggregation_method = "studyindicator",
+                                      aggregation_method = "studyspecific",
                                       study_col = "studyid",
                                       treatment_col = "tx",
                                       outcome_col = "response",
@@ -8,13 +8,20 @@ dummy_cate_object_sl <- estimate_cate(trial_tbl = dummy_tbl,
 
 dummy_cate_object_cf <- estimate_cate(trial_tbl = dummy_tbl,
                                       estimation_method = "causalforest",
-                                      aggregation_method = "studyindicator",
+                                      aggregation_method = "studyspecific",
                                       study_col = "studyid",
                                       treatment_col = "tx",
                                       outcome_col = "response")
 
 dummy_cate_object_cf_studies <- estimate_cate(trial_tbl = dummy_tbl %>%
                                                 dplyr::filter(studyid %in% c("study1", "study2")),
+                                      estimation_method = "causalforest",
+                                      aggregation_method = "studyspecific",
+                                      study_col = "studyid",
+                                      treatment_col = "tx",
+                                      outcome_col = "response")
+
+dummy_cate_object_si <- estimate_cate(trial_tbl = dummy_tbl,
                                       estimation_method = "causalforest",
                                       aggregation_method = "studyindicator",
                                       study_col = "studyid",
@@ -109,6 +116,14 @@ test_that("predict.cate raises error for invalid treatment and/or response value
   expect_snapshot(
     predict.cate(
       dummy_cate_object_rang,
+      new_dummy_tbl
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    predict.cate(
+      dummy_cate_object_si,
       new_dummy_tbl
     ),
     error = TRUE
