@@ -149,7 +149,7 @@ estimate_cate <- function(trial_tbl,
     msg = "Treatment values must be 0, 1, or NA."
   )
 
-  assert_column_class(trial_tbl, outcome_col, "numeric")
+  assert_column_class(trial_tbl, outcome_col, c("numeric", "integer"))
 
   if (is.null(covariate_col)) {
     exclude_col <- c(study_col, treatment_col, outcome_col, drop_col)
