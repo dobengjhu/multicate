@@ -34,7 +34,7 @@
 #'
 #' \deqn{\tau_i(\mathbf{X}^*) \sim N(\tau(\mathbf{X}^*), \theta^2(\mathbf{X}^*))}
 #'
-#' where \eqn{\tau_i(\mathbf{X}^*)}
+#' where \eqn{\tau(\mathbf{X}^*)}
 #' is the true average CATE for \eqn{\mathbf{X}^*} across all studies, and
 #' \eqn{\theta^2(\mathbf{X}^*)} is the between-study variance.
 #'
@@ -46,7 +46,7 @@
 #' \hat{\theta}^2(\mathbf{X}^*)}}
 #'
 #' where \eqn{\hat{\tau}(\mathbf{X}^*)} is the inverse variance-weighted average of the
-#' \eqn{\hat{\tau}(\mathbf{X}^*)} across studies, \eqn{t_{K-2}} is the t-statistic with K-2 degrees
+#' \eqn{\hat{\tau}_i(\mathbf{X}^*)} across studies, \eqn{t_{K-2}} is the t-statistic with K-2 degrees
 #' of freedom (where K is the total number of studies), \eqn{SE(\hat{\tau}(\mathbf{X}^*)^2} is the
 #' estimated variance of \eqn{\hat{\tau}(\mathbf{X}^*)}, and \eqn{\hat{\theta}^2(\mathbf{X}^*)} is
 #' the estimated between-study variance, calculated using REML. For more details, see Brantner et
