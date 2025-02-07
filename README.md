@@ -43,7 +43,7 @@ pak::pak("dobengjhu/multicate")
 
 ## Example
 
-A researcher is interested in estimating the CATE across 10 previously
+A researcher is interested in estimating the CATE across 3 previously
 conducted trials that compared the same two treatments. The researcher
 has 5 covariates that could be potential effect moderators.
 
@@ -52,7 +52,7 @@ library(multicate)
 ```
 
 ``` r
-summary(dat)
+summary(dummy_tbl)
 #>    studyid                tx              var1               var2          
 #>  Length:1500        Min.   :0.0000   Min.   :-3.23141   Min.   :-3.365264  
 #>  Class :character   1st Qu.:0.0000   1st Qu.:-0.70526   1st Qu.:-0.652530  
@@ -78,7 +78,7 @@ covariates.
 
 ``` r
 set.seed(100)
-cate_mod <- estimate_cate(dat,
+cate_mod <- estimate_cate(dummy_tbl,
                           estimation_method = "causalforest",
                           aggregation_method = "studyindicator",
                           study_col = "studyid",
@@ -92,10 +92,10 @@ summary(cate_mod)
 #> Aggregation Method: studyindicator
 #> 
 #> Variable Importance:
-#>       studyid_study3      var1 studyid_study2       var4       var3       var2
-#> Value      0.6198409 0.2510776     0.03040065 0.02422016 0.02182425 0.02123526
-#>             var5 studyid_study1
-#> Value 0.01985598     0.01154517
+#>            var1       var2       var3       var4       var5 studyid_study1
+#> Value 0.2510776 0.02123526 0.02182425 0.02422016 0.01985598     0.01154517
+#>       studyid_study2 studyid_study3
+#> Value     0.03040065      0.6198409
 #> 
 #> Overall ATE:
 #>   Estimate Std. Error 
@@ -124,7 +124,7 @@ variance estimates ‘variance_estimates’.
 plot(cate_mod)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" /><img src="man/figures/README-unnamed-chunk-6-2.png" width="100%" /><img src="man/figures/README-unnamed-chunk-6-3.png" width="100%" /><img src="man/figures/README-unnamed-chunk-6-4.png" width="100%" /><img src="man/figures/README-unnamed-chunk-6-5.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" /><img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" /><img src="man/figures/README-unnamed-chunk-5-3.png" width="100%" /><img src="man/figures/README-unnamed-chunk-5-4.png" width="100%" /><img src="man/figures/README-unnamed-chunk-5-5.png" width="100%" />
 
 The plot functionality allows for several helpful visuals of the
 resulting CATE model, including: - a histogram of CATE estimates across
@@ -137,13 +137,13 @@ interpretation tree of the CATE by covariates
 plot_vteffect(cate_mod, covariate_name = "var1")
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ``` r
 plot_vteffect(cate_mod, covariate_name = "var4")
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-2.png" width="100%" />
 
 The plot_vteffect() function can also be called to plot any covariate as
 the X axis alongside CATE estimates in the Y axis. Points are
@@ -151,12 +151,22 @@ automatically colored by study membership. This plot is a helpful visual
 to investigate how the CATE varies by a covariate of interest, as well
 as how heterogeneous the CATE is by study.
 
-Finally, suppose the researcher wants to use this model to predict the
-CATE in a target population of interest. The researcher can use the
-predict.cate() functionality to do so (see Details for more
-information).
+Suppose a primary goal for the researcher is to predict the CATE in a
+target population of interest. The researcher can use the predict.cate()
+functionality to do so (see Details for more information) after having
+estimated the CATE across studies. This functionality is currently built
+to require study-specific estimation (i.e., no pooling across studies in
+the estimate_cate() procedure).
 
 ``` r
+cate_mod <- estimate_cate(dummy_tbl,
+                          estimation_method = "causalforest",
+                          aggregation_method = "studyspecific",
+                          study_col = "studyid",
+                          treatment_col = "tx",
+                          outcome_col = "response",
+                          covariate_col = c("var1", "var2", "var3", "var4", "var5"))
+
 new_dat <- tibble::tribble(
   ~tx, ~var1,   ~var2,   ~var3,    ~var4,   ~var5,   ~response,
   0,   -0.728,  1.66,    -0.213,   -0.0621, 0.252,   1.26,
@@ -173,14 +183,14 @@ predict(cate_mod, new_dat)
 #> # A tibble: 8 × 10
 #>      tx   var1   var2    var3    var4    var5 response tau_predicted pi_lower
 #>   <dbl>  <dbl>  <dbl>   <dbl>   <dbl>   <dbl>    <dbl>         <dbl>    <dbl>
-#> 1     0 -0.728  1.66  -0.213  -0.0621  0.252    1.26            1.02    -12.6
-#> 2     0 -0.464  0.23   0.579  -1.17    0.0513  -0.235           1.08    -13.0
-#> 3     0  1.52  -0.792  0.951   0.869  -0.312    1.42            2.84    -12.6
-#> 4     0  0.41  -0.945 -1.49   -1.87   -1.35    -3.1             1.50    -13.6
-#> 5     1 -0.223  2.2    0.0242  0.419   0.333    3.56            1.14    -14.6
-#> 6     1 -0.187 -0.439 -0.557  -0.0679  0.497    0.0518          1.18    -14.1
-#> 7     1  1.41  -0.83  -0.306   1.12    0.648    2.61            2.84    -12.4
-#> 8     1 -0.437  1.22   1.18   -1.63   -1.09     0.833           1.10    -12.9
+#> 1     0 -0.728  1.66  -0.213  -0.0621  0.252    1.26            1.05    -15.1
+#> 2     0 -0.464  0.23   0.579  -1.17    0.0513  -0.235           1.08    -15.6
+#> 3     0  1.52  -0.792  0.951   0.869  -0.312    1.42            2.66    -14.3
+#> 4     0  0.41  -0.945 -1.49   -1.87   -1.35    -3.1             1.60    -14.9
+#> 5     1 -0.223  2.2    0.0242  0.419   0.333    3.56            1.18    -17.6
+#> 6     1 -0.187 -0.439 -0.557  -0.0679  0.497    0.0518          1.20    -17.0
+#> 7     1  1.41  -0.83  -0.306   1.12    0.648    2.61            2.66    -14.2
+#> 8     1 -0.437  1.22   1.18   -1.63   -1.09     0.833           1.13    -15.3
 #> # ℹ 1 more variable: pi_upper <dbl>
 ```
 

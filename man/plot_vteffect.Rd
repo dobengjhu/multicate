@@ -4,10 +4,10 @@
 \alias{plot_vteffect}
 \title{Plot Variable Treatment Effect}
 \usage{
-plot_vteffect(object, covariate_name)
+plot_vteffect(x, covariate_name)
 }
 \arguments{
-\item{object}{list. An object resulting from \link{estimate_cate}.}
+\item{x}{list. An object resulting from \link{estimate_cate}.}
 
 \item{covariate_name}{string. Name of a covariate included in dataset used to estimate tau_hat.}
 }

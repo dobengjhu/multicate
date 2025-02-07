@@ -26,7 +26,7 @@
       study_col = "studyid", treatment_col = "tx", outcome_col = "response")
     Condition
       Error:
-      ! response does not possess one of the following classes: numeric
+      ! response does not possess one of the following classes: numeric | integer
 
 # estimate_cate raises error for missing columns
 

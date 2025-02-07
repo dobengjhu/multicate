@@ -10,14 +10,15 @@
 #' including
 #' * `estimation method` : The estimation method used to estimate the CATEs.
 #' * `aggregation method` : The aggregation method used to estimate the CATEs.
-#' * `vi_table` : The variable importance table.
+#' * `vi_table` : The variable importance table. When the `aggregation_method` is "studyspecific",
+#' a matrix of variable importance values based on the study-specific models is provided.
 #' * `ate` : The overall average treatment effect across all patients and all studies. When the
 #' `estimation_method` is "causalforest", this is estimated using the
 #' \link[grf:average_treatment_effect]{grf::average_treatment_effect} function. When the
 #' `estimation_method` is "slearner", this is estimated by averaging the treatment effect across
 #' patients, accounting for counterfactual assignments. When the `aggregation_method` is
-#' "ensembleforest", a simple arithmetic mean of estimated CATEs is provided and the standard
-#' error is `NA`.
+#' "ensembleforest" or "studyspecific", a simple arithmetic mean of estimated CATEs is provided and
+#' the standard error is `NA`.
 #' * `studycate` : A table of the minimum, median, and maximum CATE values for patients from each
 #' study included in the model.
 #'
@@ -26,6 +27,7 @@
 summary.cate <- function(object,
                          tauhat_column = "tau_hat",
                          ...) {
+
   assertthat::assert_that(
     "cate" %in% class(object),
     msg = "Object must be of class cate"
@@ -39,7 +41,7 @@ summary.cate <- function(object,
   summary_list$estimation_method <- object$estimation_method
   summary_list$aggregation_method <- object$aggregation_method
 
-  if (object$aggregation_method == "ensembleforest") {
+  if (object$aggregation_method %in% c("ensembleforest", "studyspecific")) {
     mean_tau_hat <- object$model %>%
       dplyr::summarise(mean_tau_hat = mean(!!rlang::sym(tauhat_column))) %>%
       dplyr::pull()
@@ -61,20 +63,44 @@ summary.cate <- function(object,
   }
   names(summary_list$ate) <- c("Estimate", "Std. Error")
 
-  summary_list$vi_table <- object$var_importance %>%
-    dplyr::arrange(dplyr::desc(.data$importance)) %>%
-    tidyr::pivot_wider(names_from = "variable",
-                       values_from = "importance") %>%
-    as.matrix()
-  rownames(summary_list$vi_table) <- "Value"
+  if (object$aggregation_method == "studyspecific") {
+    summary_list$vi_table <- object$var_importance %>%
+      purrr::reduce(dplyr::left_join, by = "variable")
+    variable_names <- summary_list$vi_table$variable
+    study_names <- names(object$var_importance)
+
+    summary_list$vi_table <- summary_list$vi_table %>%
+      dplyr::select(-.data$variable) %>%
+      as.matrix()
+
+    rownames(summary_list$vi_table) <- variable_names
+    colnames(summary_list$vi_table) <- study_names
+  } else {
+    summary_list$vi_table <- object$var_importance %>%
+      tidyr::pivot_wider(names_from = "variable",
+                         values_from = "importance") %>%
+      as.matrix()
+    rownames(summary_list$vi_table) <- "Value"
+  }
 
   summary_list$studycate <- object$model %>%
-    dplyr::group_by(!!rlang::sym(object$study_col)) %>%
+    {
+      if (!is.na(object$study_col)) {
+        dplyr::group_by(., !!rlang::sym(object$study_col))
+      } else {
+        .
+      }
+    } %>%
     dplyr::summarise(`Minimum CATE` = min(.data$tau_hat),
                      `Median CATE` = median(.data$tau_hat),
                      `Maximum CATE` = max(.data$tau_hat)) %>%
-    dplyr::ungroup() %>%
-    tibble::column_to_rownames(object$study_col) %>%
+    {
+      if (!is.na(object$study_col)) {
+        tibble::column_to_rownames(., object$study_col)
+      } else {
+        .
+      }
+    } %>%
     as.matrix()
 
   class(summary_list) <- "summary.cate"

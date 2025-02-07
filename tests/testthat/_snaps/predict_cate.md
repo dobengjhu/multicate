@@ -20,7 +20,15 @@
       predict.cate(dummy_cate_object_rang, new_dummy_tbl)
     Condition
       Error:
-      ! Aggregation method must be 'studyindicator'.
+      ! Aggregation method must be 'studyspecific'.
+
+---
+
+    Code
+      predict.cate(dummy_cate_object_si, new_dummy_tbl)
+    Condition
+      Error:
+      ! Aggregation method must be 'studyspecific'.
 
 ---
 

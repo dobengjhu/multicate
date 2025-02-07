@@ -7,8 +7,8 @@
 estimate_cate(
   trial_tbl,
   estimation_method = c("slearner", "causalforest"),
-  aggregation_method = c("studyindicator", "ensembleforest"),
-  study_col,
+  aggregation_method = c("studyindicator", "ensembleforest", "studyspecific"),
+  study_col = NULL,
   treatment_col,
   outcome_col,
   covariate_col = NULL,
@@ -32,6 +32,8 @@ are:
 includes them as covariates in the single-study method selected in \code{estimation_method}.
 \item "ensembleforest": Fit the \code{estimation_method} within each study, apply each model to all
 individuals across all studies, then fit ensemble random forest to augmented data.
+\item "studyspecific": Fit the \code{estimation_method} separately for each study and report out
+study-specific estimates.
 }}
 
 \item{study_col}{string. Name of the column in \code{trial_tbl} with study ID.}
@@ -79,7 +81,7 @@ An object of class "cate" is a list containing the following elements:
 \item \code{treatment_col}: name of treatment column
 \item \code{outcome_col}: name of outcome column
 \item \code{covariate_col}: name(s) of covariate columns
-\item \code{estimation_object}: object from \link[grf:causal_forest]{grf::causal_forest}
+\item \code{estimation_object}: object(s) from \link[grf:causal_forest]{grf::causal_forest}
 or \link[dbarts:bart]{dbarts::bart}, according to the \code{estimation_method} selected.
 }
 }
@@ -88,21 +90,23 @@ or \link[dbarts:bart]{dbarts::bart}, according to the \code{estimation_method} s
 studies.
 }
 \details{
-The resulting CATEs are of the form: E(Y(1) - Y(0)|X), where X includes covariates included in
-the \code{covariate_col} argument. For a continuous outcome, this is the difference in the means
-between treatment groups for a particular covariate profile X. For a binary outcome, this
-translates to an estimate of the risk difference between the two treatment groups for X.
+The resulting CATEs are of the form: E(Y(1) - Y(0)|X, S), where X includes covariates included in
+the \code{covariate_col} argument and S represents the \code{study_col}. For a continuous outcome, this is
+the difference in the means between treatment groups for a particular covariate profile X. For a
+binary outcome, this translates to an estimate of the risk difference between the two treatment
+groups for X.
 
 This function relies on two methods: an estimation method and an aggregation method. Estimation
 methods include an S-learner with BART (Hill, 2011; Künzel, 2019), and a causal forest (Athey et
 al., 2019). Details on each approach can be found in the respective papers, as well as the R
-packages \code{dbarts} and \code{grf}. Aggregation methods include the pooling with trial indicator method
-and the ensemble forest (Brantner et al., 2024). All methods included in this package performed
-well in simulations across various settings of cross-study heterogeneity and functional forms of
-the CATE (Brantner et al., 2024).
+packages \code{dbarts} and \code{grf}. Aggregation methods include the study-specific method, the pooling
+with trial indicator method and the ensemble forest (Brantner et al., 2024). All methods included
+in this package performed well in simulations across various settings of cross-study
+heterogeneity and functional forms of the CATE (Brantner et al., 2024).
 
-Variance estimates are available for all estimation methods when the pooling with trial indicator
-aggregation method is used. Variance estimates are not yet available for the ensemble forest.
+Variance estimates are available for all estimation methods when the study-specific method or
+pooling with trial indicator aggregation method is used. Variance estimates are not yet available
+for the ensemble forest.
 
 Data from the studies being combined can come from randomized clinical trials, observational
 studies, or both. The estimation methods can inherently handle confounding in treatment

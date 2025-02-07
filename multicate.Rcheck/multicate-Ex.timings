@@ -1,7 +1,0 @@
-name	user	system	elapsed
-aug_dummy_tbl	0.016	0.001	0.018	
-dummy_tbl	0.008	0.000	0.008	
-estimate_cate	23.191	 0.470	20.016	
-plot.cate	4.160	0.101	1.197	
-plot_vteffect	3.671	0.064	0.605	
-predict.cate	3.540	0.063	0.529	

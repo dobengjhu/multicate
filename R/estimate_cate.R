@@ -5,21 +5,23 @@
 #' studies.
 #'
 #' @details
-#' The resulting CATEs are of the form: E(Y(1) - Y(0)|X), where X includes covariates included in
-#' the `covariate_col` argument. For a continuous outcome, this is the difference in the means
-#' between treatment groups for a particular covariate profile X. For a binary outcome, this
-#' translates to an estimate of the risk difference between the two treatment groups for X.
+#' The resulting CATEs are of the form: E(Y(1) - Y(0)|X, S), where X includes covariates included in
+#' the `covariate_col` argument and S represents the `study_col`. For a continuous outcome, this is
+#' the difference in the means between treatment groups for a particular covariate profile X. For a
+#' binary outcome, this translates to an estimate of the risk difference between the two treatment
+#' groups for X.
 #'
 #' This function relies on two methods: an estimation method and an aggregation method. Estimation
 #' methods include an S-learner with BART (Hill, 2011; Künzel, 2019), and a causal forest (Athey et
 #' al., 2019). Details on each approach can be found in the respective papers, as well as the R
-#' packages `dbarts` and `grf`. Aggregation methods include the pooling with trial indicator method
-#' and the ensemble forest (Brantner et al., 2024). All methods included in this package performed
-#' well in simulations across various settings of cross-study heterogeneity and functional forms of
-#' the CATE (Brantner et al., 2024).
+#' packages `dbarts` and `grf`. Aggregation methods include the study-specific method, the pooling
+#' with trial indicator method and the ensemble forest (Brantner et al., 2024). All methods included
+#' in this package performed well in simulations across various settings of cross-study
+#' heterogeneity and functional forms of the CATE (Brantner et al., 2024).
 #'
-#' Variance estimates are available for all estimation methods when the pooling with trial indicator
-#' aggregation method is used. Variance estimates are not yet available for the ensemble forest.
+#' Variance estimates are available for all estimation methods when the study-specific method or
+#' pooling with trial indicator aggregation method is used. Variance estimates are not yet available
+#' for the ensemble forest.
 #'
 #' Data from the studies being combined can come from randomized clinical trials, observational
 #' studies, or both. The estimation methods can inherently handle confounding in treatment
@@ -56,6 +58,8 @@
 #'    includes them as covariates in the single-study method selected in `estimation_method`.
 #'    - "ensembleforest": Fit the `estimation_method` within each study, apply each model to all
 #'    individuals across all studies, then fit ensemble random forest to augmented data.
+#'    - "studyspecific": Fit the `estimation_method` separately for each study and report out
+#'    study-specific estimates.
 #' @param study_col string. Name of the column in `trial_tbl` with study ID.
 #' @param treatment_col string. Name of the column in `trial_tbl` with treatment assignment.
 #' @param outcome_col string. Name of the column in `trial_tbl` with outcome values.
@@ -86,15 +90,18 @@
 #'  * `treatment_col`: name of treatment column
 #'  * `outcome_col`: name of outcome column
 #'  * `covariate_col`: name(s) of covariate columns
-#'  * `estimation_object`: object from \link[grf:causal_forest]{grf::causal_forest}
+#'  * `estimation_object`: object(s) from \link[grf:causal_forest]{grf::causal_forest}
 #'  or \link[dbarts:bart]{dbarts::bart}, according to the `estimation_method` selected.
 #'
 #' @example inst/examples/example-estimate_cate.R
 #' @export
 estimate_cate <- function(trial_tbl,
-                          estimation_method = c("slearner", "causalforest"),
-                          aggregation_method = c("studyindicator", "ensembleforest"),
-                          study_col,
+                          estimation_method = c("slearner",
+                                                "causalforest"),
+                          aggregation_method = c("studyindicator",
+                                                 "ensembleforest",
+                                                 "studyspecific"),
+                          study_col = NULL,
                           treatment_col,
                           outcome_col,
                           covariate_col = NULL,
@@ -105,6 +112,19 @@ estimate_cate <- function(trial_tbl,
   # assertions on methods
   estimation_method <- match.arg(estimation_method)
   aggregation_method <- match.arg(aggregation_method)
+
+  drop_study_col <- FALSE
+  if (is.null(study_col)) {
+    assertthat::assert_that(
+      aggregation_method == "studyspecific",
+      msg = "`study_col` must not be NULL when `aggregation_method` is not 'studyspecific'."
+    )
+
+    study_col <- "_tmp_studyid"
+    trial_tbl <- trial_tbl %>%
+      dplyr::mutate(!!rlang::sym(study_col) := "_1")
+    drop_study_col <- TRUE
+  }
 
   # assertions on trial_tbl
   assert_column_names_exist(trial_tbl, study_col, treatment_col, outcome_col)
@@ -129,7 +149,7 @@ estimate_cate <- function(trial_tbl,
     msg = "Treatment values must be 0, 1, or NA."
   )
 
-  assert_column_class(trial_tbl, outcome_col, "numeric")
+  assert_column_class(trial_tbl, outcome_col, c("numeric", "integer"))
 
   if (is.null(covariate_col)) {
     exclude_col <- c(study_col, treatment_col, outcome_col, drop_col)
@@ -153,9 +173,16 @@ estimate_cate <- function(trial_tbl,
     aggregation_method = aggregation_method,
     model = trial_tbl %>%
       dplyr::mutate(tau_hat = tau_list$tau_hat,
-                    variance_estimates = tau_list$variance_estimates),
+                    variance_estimates = tau_list$variance_estimates) %>%
+      {
+        if (drop_study_col) {
+          dplyr::select(., -!!rlang::sym(study_col))
+        } else {
+          .
+        }
+      },
     var_importance = tau_list$var_importance,
-    study_col = study_col,
+    study_col = dplyr::if_else(drop_study_col, NA_character_, study_col),
     treatment_col = treatment_col,
     outcome_col = outcome_col,
     covariate_col = covariate_col,
