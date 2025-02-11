@@ -1,6 +1,6 @@
 Package: multicate
 Title: Estimate Combined Conditional Average Treatment Effect And Predict Against Target Population
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: c(
     person("Daniel", "Obeng", , "dobeng1@jhu.edu", role = "cre"),
     person("Carly", "Brantner", , "carly.brantner@duke.edu", role = "aut"),
