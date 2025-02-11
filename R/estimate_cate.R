@@ -49,6 +49,8 @@
 #' @param trial_tbl tbl. A tbl containing columns for treatment, outcome, study ID, and any
 #'  additional covariates of interest. All study data must be included in single tbl. Note that
 #'  only two treatments can be considered and treatment must be coded as 0/1 (numeric).
+#'  Additionally, all study ID, treatment, outcome, and covariate variable values must be
+#'  non-missing.
 #' @param estimation_method string. Single-study methods for estimating CATE (tau) for each
 #'  observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),
 #'  and "causalforest".
@@ -145,8 +147,13 @@ estimate_cate <- function(trial_tbl,
   assert_column_class(trial_tbl, treatment_col, c("numeric", "integer"))
 
   assertthat::assert_that(
+    !any(is.na(trial_tbl[treatment_col])),
+    msg = "`treatment_col` cannot include missing values."
+  )
+
+  assertthat::assert_that(
     length(setdiff(unique(trial_tbl[[treatment_col]]), c(0,1))) == 0,
-    msg = "Treatment values must be 0, 1, or NA."
+    msg = "Treatment values must be 0 or 1."
   )
 
   assert_column_class(trial_tbl, outcome_col, c("numeric", "integer"))
@@ -155,6 +162,21 @@ estimate_cate <- function(trial_tbl,
     exclude_col <- c(study_col, treatment_col, outcome_col, drop_col)
     covariate_col <- colnames(trial_tbl)[-which(colnames(trial_tbl) %in% exclude_col)]
   }
+
+  assertthat::assert_that(
+    !any(is.na(trial_tbl[outcome_col])),
+    msg = "`outcome_col` cannot include missing values."
+  )
+
+  assertthat::assert_that(
+    !any(is.na(trial_tbl[study_col])),
+    msg = "`study_col` cannot include missing values."
+  )
+
+  assertthat::assert_that(
+    !any(is.na(trial_tbl %>% dplyr::select(dplyr::all_of(covariate_col)))),
+    msg = "Variables included in `covariate_col` cannot include missing values."
+  )
 
   named_args <- list(trial_tbl = trial_tbl,
                      study_col = study_col,

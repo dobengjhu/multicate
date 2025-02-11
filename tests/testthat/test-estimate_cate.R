@@ -1,6 +1,18 @@
 dummy_tbl_extra_var <- dummy_tbl %>%
   dplyr::mutate(other = "foobar")
 
+dummy_tbl_study_na <- dummy_tbl %>%
+  dplyr::mutate(studyid = ifelse(dplyr::row_number() == 10, NA, studyid))
+
+dummy_tbl_treatment_na <- dummy_tbl %>%
+  dplyr::mutate(tx = ifelse(dplyr::row_number() == 10, NA, tx))
+
+dummy_tbl_outcome_na <- dummy_tbl %>%
+  dplyr::mutate(response = ifelse(dplyr::row_number() == 10, NA, response))
+
+dummy_tbl_covariate_na <- dummy_tbl %>%
+  dplyr::mutate(var4 = ifelse(dplyr::row_number() == 10, NA, var4))
+
 expected_object_names <- c("estimation_method",
                            "aggregation_method",
                            "model",
@@ -192,7 +204,7 @@ test_that("estimate_cate returns correct structure with valid inputs (slearner /
   expect_true(length(result$estimation_object) == 3)
 })
 
-test_that("estimate_cate raises error for invalid treatment and/or response values", {
+test_that("estimate_cate raises error for invalid variable values", {
   expect_snapshot(
     estimate_cate(
       trial_tbl = dummy_tbl %>% dplyr::mutate(tx = paste0("Treatment ", tx)),
@@ -289,6 +301,54 @@ test_that("estimate_cate raises error for missing columns", {
       treatment_col = "tx",
       outcome_col = "response",
       covariate_col = "foobar"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl_study_na,
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl_treatment_na,
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl_outcome_na,
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
+    ),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    estimate_cate(
+      trial_tbl = dummy_tbl_covariate_na,
+      estimation_method = "causalforest",
+      aggregation_method = "studyindicator",
+      study_col = "studyid",
+      treatment_col = "tx",
+      outcome_col = "response"
     ),
     error = TRUE
   )
