@@ -19,7 +19,9 @@ estimate_cate(
 \arguments{
 \item{trial_tbl}{tbl. A tbl containing columns for treatment, outcome, study ID, and any
 additional covariates of interest. All study data must be included in single tbl. Note that
-only two treatments can be considered and treatment must be coded as 0/1 (numeric).}
+only two treatments can be considered and treatment must be coded as 0/1 (numeric).
+Additionally, all study ID, treatment, outcome, and covariate variable values must be
+non-missing.}
 
 \item{estimation_method}{string. Single-study methods for estimating CATE (tau) for each
 observation. Available methods are "slearner" (using Bayesian Additive Regression Trees),

@@ -1,4 +1,4 @@
-# estimate_cate raises error for invalid treatment and/or response values
+# estimate_cate raises error for invalid variable values
 
     Code
       estimate_cate(trial_tbl = dummy_tbl %>% dplyr::mutate(tx = paste0("Treatment ",
@@ -16,7 +16,7 @@
       study_col = "studyid", treatment_col = "tx", outcome_col = "response")
     Condition
       Error:
-      ! Treatment values must be 0, 1, or NA.
+      ! Treatment values must be 0 or 1.
 
 ---
 
@@ -87,4 +87,44 @@
       ! At least one of the following columns does not exist in the supplied table object: 
       
       foobar
+
+---
+
+    Code
+      estimate_cate(trial_tbl = dummy_tbl_study_na, estimation_method = "causalforest",
+        aggregation_method = "studyindicator", study_col = "studyid", treatment_col = "tx",
+        outcome_col = "response")
+    Condition
+      Error:
+      ! `study_col` cannot include missing values.
+
+---
+
+    Code
+      estimate_cate(trial_tbl = dummy_tbl_treatment_na, estimation_method = "causalforest",
+        aggregation_method = "studyindicator", study_col = "studyid", treatment_col = "tx",
+        outcome_col = "response")
+    Condition
+      Error:
+      ! `treatment_col` cannot include missing values.
+
+---
+
+    Code
+      estimate_cate(trial_tbl = dummy_tbl_outcome_na, estimation_method = "causalforest",
+        aggregation_method = "studyindicator", study_col = "studyid", treatment_col = "tx",
+        outcome_col = "response")
+    Condition
+      Error:
+      ! `outcome_col` cannot include missing values.
+
+---
+
+    Code
+      estimate_cate(trial_tbl = dummy_tbl_covariate_na, estimation_method = "causalforest",
+        aggregation_method = "studyindicator", study_col = "studyid", treatment_col = "tx",
+        outcome_col = "response")
+    Condition
+      Error:
+      ! Variables included in `covariate_col` cannot include missing values.
 
